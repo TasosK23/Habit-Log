@@ -169,13 +169,13 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .mh svg{width:18px;height:18px}
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
 .cg .dn{color:var(--mut);font-size:12.5px;padding-bottom:4px}
-.cg button,.cg .e{aspect-ratio:1;border-radius:10px;font-size:14px;display:grid;place-items:center;color:#cfd6e6;position:relative}
-.cg button{background:#0d1420}
-.cg button.cd{background:var(--c);color:var(--on);font-weight:700}
-.cg button.cm{color:#76808f}
-.cg button.ct{box-shadow:inset 0 0 0 2px var(--ac)}
-.cg button.cf{opacity:.35}
-.cg button.nt::after{content:"";position:absolute;bottom:4px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:currentColor}
+.cg .cell,.cg .e{aspect-ratio:1;border-radius:10px;font-size:14px;display:grid;place-items:center;color:#cfd6e6;position:relative;user-select:none;-webkit-user-select:none}
+.cg .cell{background:#0d1420;transition:background-color .4s ease,color .4s ease}
+.cg .cell.cd{background:var(--c);color:var(--on);font-weight:700}
+.cg .cell.cm{color:#76808f}
+.cg .cell.ct{box-shadow:inset 0 0 0 2px var(--ac)}
+.cg .cell.cf{opacity:.35}
+.cg .cell.nt::after{content:"";position:absolute;bottom:4px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:currentColor}
 .acts{display:flex;gap:8px;flex-wrap:wrap}
 .acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:16px;background:var(--card);font-size:15.5px;font-weight:500;min-width:30%}
 .acts .dg{color:#ff8a80}
@@ -338,7 +338,7 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 <script>
 (()=>{
 'use strict';
-const APP_VERSION='2026.11.07.2';
+const APP_VERSION='2026.11.07.3';
 const APP_CREATED='2026-11-07';
 const KEY='habitlog.v1';
 const COLORS=['#4da3ff','#2f7bff','#5ee0ff','#8a9bff','#b18cff','#3ddc97','#ffc857','#ff7a7a','#ff7ac6','#9fb0c9'];
@@ -672,6 +672,18 @@ function morphKids(from,to){
   }
   while(cur){const n=cur.nextSibling;from.removeChild(cur);cur=n}
 }
+/* cards that leave the list (e.g. ticked while the Due filter is on) fade out instead of vanishing */
+function ghostOut(content){
+  const keep=new Set(Array.from(content.querySelectorAll('[data-flip]')).map(e=>e.getAttribute('data-k')));
+  root.querySelectorAll('.view [data-flip]').forEach(el=>{
+    const k=el.getAttribute('data-k');if(keep.has(k))return;
+    const r=el.getBoundingClientRect();if(!r.height||!el.animate)return;
+    const g=el.cloneNode(true);['data-k','data-flip','data-act'].forEach(a=>g.removeAttribute(a));
+    Object.assign(g.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:'0',zIndex:4,pointerEvents:'none'});
+    document.body.appendChild(g);
+    g.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)'}],{duration:280,easing:'ease-out'}).onfinish=()=>g.remove();
+  });
+}
 /* FLIP: cards and list rows glide to their new spot instead of jumping */
 function flipBefore(){const m=new Map();root.querySelectorAll('[data-flip]').forEach(el=>m.set(el.getAttribute('data-k'),el.getBoundingClientRect().top));return m}
 function flipAfter(m){
@@ -731,7 +743,7 @@ function vHome(){
   const cats=[...new Set(hs.map(h=>h.category).filter(Boolean))];
   if(ui.cat&&!cats.includes(ui.cat))ui.cat=null;
   const list=hs.filter(h=>!ui.cat||h.category===ui.cat);
-  const dueL=list.filter(h=>dueOn(h,d));
+  const dueL=list.filter(h=>dueOn(h,d)&&!isDone(h,d));
   const shown=ui.filter==='due'?dueL:list;
   const ws=startOfWeek(d);let strip='';
   for(let i=0;i<7;i++){
@@ -749,7 +761,7 @@ function vHome(){
 ${cats.length>1?`<div class="cats">${[['','All categories'],...cats.map(c=>[c,c])].map(([v,l])=>`<button class="ch${(ui.cat||'')===v?' on':''}" data-act="cat" data-c="${esc(v)}">${esc(l)}</button>`).join('')}</div>`:''}
 ${hs.length?`<div class="tb${all?' all':''}">${all?`<b>All ${s2.total} done</b> ${d===t?'today. Nice work.':'on this day'}`:`<b>${s2.done} of ${s2.total}</b> done ${d===t?'today':'on this day'} · ${s2.pct.toFixed(0)}%`}<div class="bar"><i style="width:${s2.pct.toFixed(1)}%"></i></div></div>`:''}
 ${bars}
-${shown.length?shown.map(h=>card(h,d,locked)).join(''):`<div class="empty">${hs.length?'Nothing is due on this day.':'No active habits.<br>Tap + to add one, or restore one from the Data tab.'}</div>`}`;
+${shown.length?shown.map(h=>card(h,d,locked)).join(''):`<div class="empty">${!hs.length?'No active habits.<br>Tap + to add one, or restore one from the Data tab.':ui.filter==='due'&&list.some(h=>dueOn(h,d)||isDone(h,d))?(d===t?'Everything due today is done. Nice work.':'Everything due on this day was done.'):'Nothing is due on this day.'}</div>`}`;
 }
 
 function vTimeline(){
@@ -797,7 +809,7 @@ function vDetail(){
     const d=ds(new Date(y,m,day));let cls='';
     if(d>t)cls='cf';else if(isDone(h,d))cls='cd';else if(d>=h.created&&isDue(h,d)&&d<t)cls='cm';
     if(d===t)cls+=' ct';if(S.notes[h.id+'|'+d])cls+=' nt';
-    cells+=`<button class="${cls.trim()}" data-act="calday" data-d="${d}">${day}</button>`;
+    cells+=`<div class="cell ${cls.trim()}">${day}</div>`;
   }
   let wk='',any=false;
   for(let i=0;i<7;i++){const dw=(S.settings.weekStart+i)%7,w=c.wd[dw],p=w.due?w.ok/w.due*100:0;if(w.due)any=true;wk+=barCol(p,100,DN[dw].slice(0,1),w.due?Math.round(p)+'%':'')}
@@ -925,6 +937,7 @@ function render(){
   });
   const before=viewChanged||REDUCED?null:flipBefore();
   const tpl=document.createElement('template');tpl.innerHTML=html;
+  if(before)ghostOut(tpl.content);
   morphKids(root,tpl.content);
   if(viewChanged){window.scrollTo(0,0);ui.lk=key}
   if(before)flipAfter(before);
@@ -1030,11 +1043,6 @@ function act(a,d){
     case 'info':ui.sheet={t:'info'};render();return;
     case 'calprev':{let {y,m}=ui.cal;m--;if(m<0){m=11;y--}ui.cal={y,m};render();return}
     case 'calnext':{let {y,m}=ui.cal;m++;if(m>11){m=0;y++}ui.cal={y,m};render();return}
-    case 'calday':{const hh=byId(ui.id);if(!hh)return;const dd=d.d,t=today();
-      if(dd>t){toast("You can't log future days.");return}
-      if(dd===t&&!isMed(hh)&&rule(hh,t).tracking==='tick'){if(!canLog(dd))return;setLog(hh,dd,isDone(hh,dd)?null:1);buzz();render();return}
-      if(S.notes[hh.id+'|'+dd]){ui.sheet={t:'note',id:hh.id,date:dd};render();return}
-      toast(dd===t?'Log this one from the Habits tab.':'Past days are read-only.');return}
     case 'add':ui.form=blankForm();nav('form');return;
     case 'edit':{const hh=byId(ui.id);if(!hh)return;ui.form=formFrom(hh);nav('form',ui.id);return}
     case 'arch':{const hh=byId(ui.id);if(!hh)return;hh.archived=true;save();toast('Archived. Restore it from the Data tab.');history.back();return}
