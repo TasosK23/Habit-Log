@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--card:#090d15;--card2:#0e1522;--line:#172033;--tx:#f3f6ff;--mut:#8591a8;--ac:#4da3ff;--ac2:#2f7bff;--acd:rgba(77,163,255,.15);--on:#031325}
+:root{--card:#090d15;--card2:#0e1522;--line:#172033;--tx:#f3f6ff;--mut:#8591a8;--ac:#4da3ff;--acd:rgba(77,163,255,.15);--on:#031325}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:#000;color:var(--tx);font-family:'Fira Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
 body{min-height:100dvh}
@@ -67,8 +67,15 @@ svg{display:block}
 .ch.on{background:var(--ac);color:var(--on);font-weight:600}
 .tb{margin:2px 2px 14px;color:var(--mut);font-size:14px}
 .tb b{color:var(--tx);font-weight:600}
+.tb.all b{color:var(--ac)}
 .bar{height:6px;border-radius:3px;background:#101828;margin-top:8px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ac);border-radius:3px;transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.lockbar{display:flex;align-items:center;gap:10px;background:#0b1424;border:1px solid #162540;color:#b9c6dc;border-radius:16px;padding:9px 9px 9px 14px;margin:0 0 14px;font-size:14.5px;line-height:1.35}
+.lockbar svg{width:18px;height:18px;color:var(--ac);flex:none}
+.lockbar span{flex:1}
+.lockbar button{background:var(--ac);color:var(--on);border-radius:11px;padding:8px 13px;font-weight:600;font-size:14px;flex:none}
+.lockbar.warn{background:#241012;border-color:#47201f;color:#ffc9c2}
+.lockbar.warn svg{color:#ff8a80}
 
 /* habit card */
 .hc{--c:#4da3ff;background:var(--card);border-radius:22px;padding:14px;margin-bottom:12px;cursor:pointer;transition:transform .16s ease,opacity .3s ease}
@@ -84,11 +91,13 @@ svg{display:block}
 .rb.on{background:var(--ac);color:var(--on)}
 .rb.note{background:#0f1726;color:#c9d2e4}
 .rb.note.has{background:var(--acd);color:var(--ac)}
+.rb.lk,.cnt.lk{opacity:.42}
 .pop{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
 @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.17)}100%{transform:scale(1)}}
-.cnt{display:flex;align-items:center;background:var(--acd);border-radius:23px;height:46px;flex:none;transition:background-color .25s ease,color .25s ease}
+.cnt{display:flex;align-items:center;background:var(--acd);border-radius:23px;height:46px;flex:none;transition:background-color .25s ease,color .25s ease,opacity .25s ease}
 .cnt button{width:36px;height:46px;font-size:22px;display:grid;place-items:center;color:var(--ac)}
 .cnt span{min-width:38px;text-align:center;font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+.cnt.lk{padding:0 8px}
 .cnt.on{background:var(--ac);color:var(--on)}
 .cnt.on button{color:var(--on)}
 .heat{display:grid;grid-template-columns:repeat(22,1fr);gap:3px;margin-top:14px}
@@ -102,9 +111,10 @@ svg{display:block}
 
 /* bottom nav */
 .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:520px;padding:14px 10px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(rgba(0,0,0,0),#000 34%);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;z-index:5}
-.ni{display:flex;flex-direction:column;align-items:center;gap:4px;color:#3a465c;font-size:11.5px;font-weight:500;padding:4px 0;width:64px}
+.ni{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;color:#3a465c;font-size:11.5px;font-weight:500;padding:4px 0;width:64px}
 .ni svg{width:26px;height:26px}
 .ni.on{color:var(--ac)}
+.ni.dot::after{content:"";position:absolute;top:2px;left:calc(50% + 9px);width:8px;height:8px;border-radius:50%;background:#ffb547;box-shadow:0 0 0 2px #000}
 .add{width:56px;height:52px;border-radius:17px;background:var(--ac);color:var(--on);display:grid;place-items:center;box-shadow:0 6px 22px rgba(77,163,255,.3)}
 .add svg{width:30px;height:30px}
 
@@ -119,10 +129,12 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .pk>i b{display:block;width:28px;height:28px;border-radius:50%;transition:background-color .3s ease}
 .blk{background:var(--card);border-radius:22px;padding:18px;margin-bottom:14px}
 .blk h3{margin:0 0 14px;font-size:17px;font-weight:600}
+.blk p{margin:0;color:var(--mut);font-size:15px;line-height:1.45}
 .seg{display:flex;gap:8px}
 .sg{flex:1;padding:13px 6px;border-radius:14px;background:#0f1522;color:var(--mut);font-size:16px;text-align:center}
 .sg.on{background:#183a62;color:#fff;font-weight:600}
 .hint{text-align:center;color:var(--mut);font-size:14.5px;margin:14px 0 0}
+.fnote{color:var(--mut);font-size:14px;text-align:center;margin:4px 8px 0;line-height:1.4}
 .rd{display:flex;align-items:center;gap:14px;padding:9px 2px;font-size:17px;width:100%;text-align:left}
 .rd:active{transform:none}
 .rdo{width:26px;height:26px;border-radius:50%;border:2.5px solid #dfe5f1;display:grid;place-items:center;flex:none;transition:border-color .2s ease}
@@ -143,7 +155,7 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .sw.on::after{transform:translateX(22px);background:#fff}
 
 /* detail */
-.desc{color:var(--mut);margin:-12px 4px 16px;font-size:15px}
+.desc{color:var(--mut);margin:-12px 4px 16px;font-size:15px;line-height:1.4}
 .tl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .st{background:var(--card);border-radius:18px;padding:14px 16px}
 .st b{display:block;font-size:24px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
@@ -157,16 +169,17 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .mh svg{width:18px;height:18px}
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
 .cg .dn{color:var(--mut);font-size:12.5px;padding-bottom:4px}
-.cg button,.cg .e{aspect-ratio:1;border-radius:10px;font-size:14px;display:grid;place-items:center;color:#cfd6e6}
+.cg button,.cg .e{aspect-ratio:1;border-radius:10px;font-size:14px;display:grid;place-items:center;color:#cfd6e6;position:relative}
 .cg button{background:#0d1420}
 .cg button.cd{background:var(--c);color:var(--on);font-weight:700}
 .cg button.cm{color:#76808f}
 .cg button.ct{box-shadow:inset 0 0 0 2px var(--ac)}
 .cg button.cf{opacity:.35}
-.acts{display:flex;gap:10px}
-.acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:16px;background:var(--card);font-size:16px;font-weight:500}
+.cg button.nt::after{content:"";position:absolute;bottom:4px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:currentColor}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:16px;background:var(--card);font-size:15.5px;font-weight:500;min-width:30%}
 .acts .dg{color:#ff8a80}
-.acts .pr{background:var(--ac);color:var(--on);font-weight:600}
+.acts .pr{background:var(--ac);color:var(--on);font-weight:600;flex-basis:100%}
 .acts svg{width:19px;height:19px}
 
 /* score */
@@ -187,6 +200,20 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .trio .st b{font-size:20px}
 .trio .st span{font-size:12.5px}
 
+/* charts */
+.card{background:var(--card);border-radius:22px;padding:16px;margin-bottom:14px}
+.card h3{margin:0 0 12px;font-size:17px;font-weight:600}
+.card .cap{color:var(--mut);font-size:13.5px;margin:10px 0 0}
+.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:130px}
+.bars.sm{height:110px}
+.bc{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;min-width:0}
+.bc small{font-size:11px;color:var(--mut);height:13px;white-space:nowrap}
+.bt{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.bv{width:70%;max-width:26px;border-radius:7px;background:#121c2e;transition:height .6s cubic-bezier(.2,.8,.2,1)}
+.bv.on{background:var(--ac)}
+.bc span{font-size:12.5px;color:var(--mut)}
+.bc.tod span{color:var(--tx);font-weight:700}
+
 /* timeline */
 .tw{position:relative}
 .tw::before{content:"";position:absolute;left:19.5px;top:0;bottom:0;width:5px;border-radius:3px;background:#111a2a}
@@ -202,7 +229,8 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 
 /* meditation */
 .goals{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}
-.mring{position:relative;width:min(76vw,290px);aspect-ratio:1;margin:14px auto 16px}
+.glabel{text-align:center;color:var(--mut);font-size:13.5px;margin:-8px 0 10px}
+.mring{position:relative;width:min(76vw,290px);aspect-ratio:1;margin:12px auto 10px}
 .mring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
 .mring .tr{stroke:#0f1726}
 .mring .pg{stroke:var(--ac);transition:stroke-dasharray .7s cubic-bezier(.2,.8,.2,1)}
@@ -210,9 +238,11 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .glow{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(77,163,255,.28) 0%,rgba(77,163,255,.08) 55%,rgba(77,163,255,0) 72%);opacity:0;transform:scale(.85);transition:opacity .8s ease}
 .mring.run .glow{opacity:1;animation:breathe 8s ease-in-out infinite}
 @keyframes breathe{0%,100%{transform:scale(.84)}50%{transform:scale(1.1)}}
-.mtime{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mtime{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 30px;text-align:center}
 .mtime b{font-size:50px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.mtime span{color:var(--mut);font-size:14.5px;margin-top:4px}
+.mtime span{color:var(--mut);font-size:14px;margin-top:4px;line-height:1.3}
+.breath{height:20px;text-align:center;color:var(--ac);font-size:15px;font-weight:500;margin:0 0 12px;opacity:0;transition:opacity .5s ease}
+.breath.on{opacity:1}
 .mbtns{display:flex;align-items:flex-start;justify-content:center;gap:28px;margin:0 0 22px}
 .mbw{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--mut);font-size:13px;padding-top:12px}
 .mb{width:54px;height:54px;border-radius:50%;background:var(--card2);display:grid;place-items:center;color:var(--tx)}
@@ -221,24 +251,15 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .mb.main svg{width:30px;height:30px}
 .mb.sv{background:var(--acd);color:var(--ac)}
 .mb.off{opacity:.4}
-.card{background:var(--card);border-radius:22px;padding:16px;margin-bottom:14px}
-.card h3{margin:0 0 12px;font-size:17px;font-weight:600}
 .sect{margin:22px 4px 12px;font-size:17px;font-weight:600}
-.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:130px}
-.bc{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;min-width:0}
-.bc small{font-size:11px;color:var(--mut);height:13px;white-space:nowrap}
-.bt{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
-.bv{width:70%;max-width:26px;border-radius:7px;background:#121c2e;transition:height .6s cubic-bezier(.2,.8,.2,1)}
-.bv.on{background:var(--ac)}
-.bc span{font-size:12.5px;color:var(--mut)}
-.bc.tod span{color:var(--tx);font-weight:700}
 .hday{background:var(--card);border-radius:20px;padding:4px 16px;margin-bottom:10px}
 .hdh{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:16px}
 .hdh span{color:var(--ac);font-weight:600}
-.hs{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #121a28;color:#c5cddd;font-size:15px}
+.hs{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #121a28;color:#c5cddd;font-size:15px;min-height:49px}
 .hs span:first-child{color:var(--mut);width:48px;font-variant-numeric:tabular-nums}
 .hs span:nth-child(2){flex:1}
-.xb{width:32px;height:32px;border-radius:50%;background:#0f1726;color:var(--mut);font-size:18px;display:grid;place-items:center}
+.xb{width:32px;height:32px;border-radius:50%;background:#0f1726;color:var(--mut);font-size:18px;display:grid;place-items:center;flex:none}
+.xb svg{width:16px;height:16px}
 
 /* data tab */
 .appc{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:22px;padding:16px;margin-bottom:10px}
@@ -257,6 +278,8 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .row.dg{color:#ff8a80}
 .row.hl{box-shadow:inset 0 0 0 1.5px var(--ac)}
 .row.hl svg{color:var(--ac)}
+.row.warm{box-shadow:inset 0 0 0 1.5px #ffb547}
+.row.warm small{color:#ffcf85}
 
 /* overlays */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fin .22s ease both}
@@ -281,6 +304,11 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .bx{width:28px;height:28px;border-radius:9px;border:2.5px solid #3a4558;display:grid;place-items:center;flex:none;transition:background-color .2s ease,border-color .2s ease}
 .bx svg{width:18px;height:18px}
 .cli.on .bx{background:var(--ac);border-color:var(--ac);color:var(--on)}
+.rr{--c:#4da3ff;display:flex;align-items:center;gap:12px;padding:8px 2px;border-bottom:1px solid #121a28}
+.rr .ico{width:38px;height:38px;font-size:18px}
+.rr .ttl{flex:1;font-size:16px}
+.mini{background:var(--acd);color:var(--ac);border-radius:11px;padding:8px 12px;font-size:14px;font-weight:600;flex:none}
+.mini.d{background:#2a1414;color:#ff9a90}
 .btn{display:block;width:100%;padding:15px;border-radius:16px;background:var(--ac);color:var(--on);font-weight:600;font-size:17px;text-align:center;margin-top:12px}
 .btn.g{background:#131c2d;color:var(--tx)}
 .btn.d{background:#3a1717;color:#ff9a90}
@@ -295,7 +323,7 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .mi svg{width:28px;height:28px}
 .mbox h3{margin:0 0 8px;font-size:21px;font-weight:600}
 .mbox p{color:#b9c3d8;font-size:15.5px;line-height:1.5;margin:0 0 6px}
-#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:#16233a;color:#fff;padding:12px 20px;border-radius:20px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:50;max-width:88%;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:#16233a;color:#fff;padding:12px 20px;border-radius:20px;font-size:15px;line-height:1.35;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:50;max-width:88%;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 .ban{position:sticky;top:max(8px,env(safe-area-inset-top));z-index:15;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ac);color:var(--on);border-radius:16px;padding:10px 12px 10px 16px;margin-bottom:12px;font-weight:600;font-size:15px}
 .ban.hide{display:none}
@@ -310,7 +338,7 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 <script>
 (()=>{
 'use strict';
-const APP_VERSION='2026.11.07.1';
+const APP_VERSION='2026.11.07.2';
 const APP_CREATED='2026-11-07';
 const KEY='habitlog.v1';
 const COLORS=['#4da3ff','#2f7bff','#5ee0ff','#8a9bff','#b18cff','#3ddc97','#ffc857','#ff7a7a','#ff7ac6','#9fb0c9'];
@@ -320,21 +348,27 @@ const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MLONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MILES=[3,7,14,21,30,50,75,100,150,200,365];
-const GOALS=[[300,'5 min'],[600,'10 min'],[900,'15 min'],[1200,'20 min'],[1800,'30 min'],[0,'No goal']];
+const GOALS=[300,600,900,1200,1800,2700,3600];
 const ROOTS=['home','med','timeline','data'];
 const MC=2*Math.PI*130;
+const CLOCK_SLACK=3*3600e3;
+const LONG_SESSION=3*3600;
+const CLOCK_MSG="Your phone's clock is earlier than your last visit. Fix the date and time to log habits.";
+const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const I=(p,x='')=>`<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" ${x}>${p}</svg>`;
 const IC={
  back:I('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
  check:I('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
  share:I('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/>','stroke-width="2"'),
- gear:I('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>','stroke-width="2"'),
  plus:I('<path d="M12 5v14M5 12h14"/>'),
  note:I('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/>','stroke-width="2"'),
  info:I('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>','stroke-width="2"'),
  trash:I('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>','stroke-width="2"'),
  edit:I('<path d="M4 20h4L19 9l-4-4L4 16z"/>','stroke-width="2"'),
+ archive:I('<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>','stroke-width="2"'),
+ lock:I('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>','stroke-width="2"'),
+ warn:I('<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5h.01"/>','stroke-width="2"'),
  grid:I('<rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/>','fill="currentColor" stroke="none"'),
  lines:I('<path d="M4 7h16M4 12h10M4 17h13"/>','stroke-width="2.8"'),
  lotus:I('<path d="M12 4c-2.6 3-2.6 8 0 12 2.6-4 2.6-9 0-12z"/><path d="M12 16c-3.5 0-7.2-2.2-8-7 3.3.3 6.5 2.8 8 7z"/><path d="M12 16c3.5 0 7.2-2.2 8-7-3.3.3-6.5 2.8-8 7z"/><path d="M5 20h14"/>','stroke-width="1.9"'),
@@ -344,8 +378,11 @@ const IC={
  fire:I('<path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z"/>','stroke-width="2"'),
  chev:I('<path d="M9 6l6 6-6 6"/>','stroke-width="2.6"'),
  chevl:I('<path d="M15 6l-6 6 6 6"/>','stroke-width="2.6"'),
+ cup:I('<path d="M6 15l6-6 6 6"/>','stroke-width="2.6"'),
+ cdown:I('<path d="M6 9l6 6 6-6"/>','stroke-width="2.6"'),
  down:I('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>','stroke-width="2"'),
  up:I('<path d="M12 20V9M7 13l5-5 5 5M5 4h14"/>','stroke-width="2"'),
+ sort:I('<path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/>','stroke-width="2"'),
  play:I('<path d="M8 5.5v13l10.5-6.5z"/>','fill="currentColor" stroke-width="1.5"'),
  pause:I('<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>','fill="currentColor" stroke="none"'),
  reset:I('<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/>','stroke-width="2.2"'),
@@ -370,27 +407,85 @@ const fmtClock=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;ret
 const fmtDur=s=>{s=Math.round(s);if(s<60)return s+'s';const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;if(h)return `${h}h ${m}m`;return x?`${m}m ${x}s`:`${m}m`};
 const fmtShort=s=>{s=Math.round(s);if(!s)return '0m';if(s<60)return s+'s';const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}m`:`${m}m`};
 
-/* ---------- data ---------- */
-function uid(){return 'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-function mk(o){return Object.assign({id:uid(),title:'',desc:'',color:COLORS[0],icon:'🎯',type:'build',
-  freq:{mode:'daily',days:[1,2,3,4,5],mdays:[1],count:3,period:'week'},tracking:'tick',target:1,unit:'',items:[],
-  category:'',showStreak:true,created:today(),archived:false},o)}
-function seed(){
+/* ---------- data: everything that enters storage goes through sanitize() ---------- */
+const reId=/^[A-Za-z0-9_-]{1,40}$/,reDate=/^\d{4}-\d{2}-\d{2}$/,reColor=/^#[0-9a-fA-F]{6}$/;
+const int=(v,lo,hi,def)=>{v=Math.round(Number(v));return Number.isFinite(v)?Math.min(hi,Math.max(lo,v)):def};
+function uid(){return 'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function cleanFreq(f){
+  f=f&&typeof f==='object'?f:{};
+  const mode=['daily','weekdays','monthdays','period'].includes(f.mode)?f.mode:'daily',period=f.period==='month'?'month':'week';
+  const days=[...new Set((Array.isArray(f.days)?f.days:[1,2,3,4,5]).map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=6))].sort((a,b)=>a-b);
+  const mdays=[...new Set((Array.isArray(f.mdays)?f.mdays:[1]).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=31))].sort((a,b)=>a-b);
+  return {mode,days:days.length?days:[1,2,3,4,5],mdays:mdays.length?mdays:[1],count:int(f.count,1,period==='week'?7:31,3),period};
+}
+function cleanRule(r,created){
+  r=r&&typeof r==='object'?r:{};
+  return {from:reDate.test(r.from)?r.from:created,freq:cleanFreq(r.freq),tracking:['tick','count','checklist'].includes(r.tracking)?r.tracking:'tick',
+    target:int(r.target,1,999,1),items:(Array.isArray(r.items)?r.items:[]).map(s=>String(s).trim().slice(0,60)).filter(Boolean).slice(0,30)};
+}
+function ruleSig(r){
+  const f=r.freq,fs=f.mode==='weekdays'?f.days.join():f.mode==='monthdays'?f.mdays.join():f.mode==='period'?f.count+'/'+f.period:'';
+  return [f.mode,fs,r.tracking,r.tracking==='count'?r.target:'',r.tracking==='checklist'?r.items.join('\n'):''].join('|');
+}
+function sanitize(o){
+  o=o&&typeof o==='object'?o:{};
+  const t=today(),st0=o.settings&&typeof o.settings==='object'?o.settings:{},idMap={};
+  const out={v:2,habits:[],logs:{},notes:{},medLog:{},med:{},settings:{}};
+  (Array.isArray(o.habits)?o.habits:[]).forEach(h=>{
+    if(!h||typeof h!=='object')return;
+    let id=reId.test(h.id)?h.id:uid();if(out.habits.some(x=>x.id===id))id=uid();
+    if(typeof h.id==='string')idMap[h.id]=id;
+    const created=reDate.test(h.created)&&h.created<=t?h.created:t;
+    let rules=Array.isArray(h.rules)&&h.rules.length?h.rules:[{from:created,freq:h.freq,tracking:h.tracking,target:h.target,items:h.items}];
+    rules=rules.map(r=>cleanRule(r,created)).filter(r=>r.from<=t).sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0);
+    if(!rules.length)rules=[cleanRule({},created)];
+    rules[0].from=created;
+    out.habits.push({id,title:String(h.title||'Habit').slice(0,60),desc:String(h.desc||'').slice(0,120),color:reColor.test(h.color)?h.color:COLORS[0],
+      icon:[...String(h.icon||'🎯')].slice(0,3).join(''),type:h.type==='quit'?'quit':'build',category:String(h.category||'').slice(0,24),
+      showStreak:h.showStreak!==false,created,archived:!!h.archived,rules});
+    const L=o.logs&&typeof o.logs==='object'&&o.logs[h.id]&&typeof o.logs[h.id]==='object'?o.logs[h.id]:{},m={};
+    Object.keys(L).forEach(d=>{
+      if(!reDate.test(d)||d>t)return;const v=L[d];
+      if(Array.isArray(v)){const a=[...new Set(v.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<30))];if(a.length)m[d]=a}
+      else if(v===true)m[d]=1;else{const n=Number(v);if(Number.isFinite(n)&&n>0)m[d]=Math.min(Math.round(n),99999)}
+    });
+    out.logs[id]=m;
+  });
+  if(o.notes&&typeof o.notes==='object')Object.keys(o.notes).forEach(k=>{const [oid,d]=k.split('|');const v=o.notes[k];if(idMap[oid]&&reDate.test(d)&&d<=t&&typeof v==='string'&&v.trim())out.notes[idMap[oid]+'|'+d]=v.slice(0,1000)});
+  if(o.medLog&&typeof o.medLog==='object')Object.keys(o.medLog).forEach(d=>{
+    if(!reDate.test(d)||d>t||!Array.isArray(o.medLog[d]))return;
+    const a=o.medLog[d].filter(x=>x&&Number.isFinite(+x.at)&&Number(x.s)>0).map(x=>({at:+x.at,s:int(x.s,1,86400,1)}));
+    if(a.length)out.medLog[d]=a;
+  });
+  const since=reDate.test(st0.since)&&st0.since<=t?st0.since:t;
+  const md=o.med&&typeof o.med==='object'?o.med:{};
+  let goals=Array.isArray(md.goals)?md.goals.filter(g=>g&&reDate.test(g.from)&&g.from<=t).map(g=>({from:g.from,goal:int(g.goal,60,14400,600)})):[];
+  if(!goals.length)goals=[{from:since,goal:Number(md.goal)>0?int(md.goal,60,14400,600):600}];
+  goals.sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0);
+  const start=Number(md.start)>0?+md.start:null,acc=Math.max(0,Number(md.acc)||0);
+  out.med={acc,start,began:Number(md.began)>0?+md.began:(acc||start?(start||Date.now()):null),notified:!!md.notified,goals};
+  let medHabit=idMap[st0.medHabit]||null;
+  if(!medHabit){const m=out.habits.find(h=>/meditat/i.test(h.title));medHabit=m?m.id:null}
+  out.settings={weekStart:st0.weekStart===0?0:1,since,lastBackup:reDate.test(st0.lastBackup)?st0.lastBackup:null,medHabit,
+    medFrom:reDate.test(st0.medFrom)?st0.medFrom:t,maxSeen:Number(st0.maxSeen)>0?+st0.maxSeen:0};
+  return out;
+}
+function seedRaw(){
+  const t=today();
   const L=[['Do typing','⌨️','Learning'],['Workout','🏋️','Health'],['Read a book','📖','Learning'],['Do Duolingo','🦉','Learning'],
     ['Develop any skill','🧠','Learning'],['Study','🎓','Learning'],['Pray','🙏','Faith'],['Stretch','🤸','Health'],
     ['Meditate','🧘','Mind'],['Relax','😌','Mind']];
-  return {v:1,habits:L.map(([title,icon,category],i)=>mk({title,icon,category,color:COLORS[i%5]})),logs:{},notes:{},medLog:{},med:{},settings:{}};
+  return {habits:L.map(([title,icon,category],i)=>({id:uid(),title,icon,category,color:COLORS[i%5],created:t,rules:[{from:t}]})),settings:{since:t,medFrom:t}};
 }
-function normalize(o){
-  o.logs=o.logs||{};o.notes=o.notes||{};o.medLog=o.medLog||{};
-  o.med=Object.assign({goal:600,acc:0,start:null,notified:false},o.med);
-  o.settings=Object.assign({weekStart:1,since:today(),lastBackup:null,medHabit:null},o.settings);
-  if(!o.settings.medHabit||!o.habits.some(h=>h.id===o.settings.medHabit)){const m=o.habits.find(h=>/meditat/i.test(h.title));o.settings.medHabit=m?m.id:null}
-  return o;
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.habits))return sanitize(o)}}catch(e){}return sanitize(seedRaw())}
+let S=load();
+const memo=new Map();
+const clockOk=()=>Date.now()>=(S.settings.maxSeen||0)-CLOCK_SLACK;
+function save(){
+  memo.clear();
+  if(clockOk())S.settings.maxSeen=Math.max(S.settings.maxSeen||0,Date.now());
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save. Storage may be full.')}
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.habits))return o}}catch(e){}return seed()}
-let S=normalize(load());
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save. Storage may be full.')}}
 save();
 const active=()=>S.habits.filter(h=>!h.archived);
 const byId=id=>S.habits.find(h=>h.id===id);
@@ -402,28 +497,35 @@ function setLog(h,d,v){
 }
 const startOfWeek=s=>addDays(s,-((pd(s).getDay()-S.settings.weekStart+7)%7));
 
-/* ---------- habit logic ---------- */
+/* ---------- habit rules: edits apply from the day they are made, history keeps the old rules ---------- */
+function rule(h,d){const R=h.rules;let r=R[0];for(let i=1;i<R.length;i++){if(R[i].from<=d)r=R[i];else break}return r}
+const cur=h=>h.rules[h.rules.length-1];
+const isMed=h=>!!h&&h.id===S.settings.medHabit;
+const goalAt=d=>{const G=S.med.goals;let g=G[0].goal;for(let i=1;i<G.length;i++){if(G[i].from<=d)g=G[i].goal;else break}return g};
+const medDay=d=>(S.medLog[d]||[]).reduce((a,b)=>a+b.s,0);
 function isDone(h,d){
-  const v=logOf(h,d);if(v==null)return false;
-  if(h.tracking==='count')return v>=(h.target||1);
-  if(h.tracking==='checklist')return Array.isArray(v)&&h.items.length>0&&v.length>=h.items.length;
+  if(isMed(h)&&d>=S.settings.medFrom)return medDay(d)>=goalAt(d);
+  const v=logOf(h,d);if(v==null)return false;const r=rule(h,d);
+  if(r.tracking==='count')return v>=r.target;
+  if(r.tracking==='checklist')return Array.isArray(v)&&r.items.length>0&&v.length>=r.items.length;
   return !!v;
 }
 function frac(h,d){
-  const v=logOf(h,d);if(v==null)return 0;
-  if(h.tracking==='count')return Math.min(1,v/(h.target||1));
-  if(h.tracking==='checklist')return h.items.length&&Array.isArray(v)?Math.min(1,v.length/h.items.length):0;
+  if(isMed(h)&&d>=S.settings.medFrom)return Math.min(1,medDay(d)/goalAt(d));
+  const v=logOf(h,d);if(v==null)return 0;const r=rule(h,d);
+  if(r.tracking==='count')return Math.min(1,v/r.target);
+  if(r.tracking==='checklist')return r.items.length&&Array.isArray(v)?Math.min(1,v.length/r.items.length):0;
   return v?1:0;
 }
 function isDue(h,d){
   if(d<h.created)return false;
-  const dt=pd(d),f=h.freq;
+  const f=rule(h,d).freq,dt=pd(d);
   if(f.mode==='weekdays')return f.days.includes(dt.getDay());
   if(f.mode==='monthdays')return f.mdays.includes(dt.getDate());
   return true;
 }
-function periodDays(h,d){
-  if(h.freq.period==='month'){
+function periodDays(f,d){
+  if(f.period==='month'){
     const dt=pd(d),n=new Date(dt.getFullYear(),dt.getMonth()+1,0).getDate(),s=ds(new Date(dt.getFullYear(),dt.getMonth(),1));
     return Array.from({length:n},(_,i)=>addDays(s,i));
   }
@@ -431,50 +533,66 @@ function periodDays(h,d){
 }
 function dueOn(h,d){
   if(d<h.created)return false;
-  if(h.freq.mode!=='period')return isDue(h,d);
-  return periodDays(h,d).filter(x=>x!==d&&isDone(h,x)).length<(h.freq.count||1);
+  const f=rule(h,d).freq;
+  if(f.mode!=='period')return isDue(h,d);
+  return periodDays(f,d).filter(x=>x!==d&&isDone(h,x)).length<f.count;
 }
 /* Habit Score = recency-weighted consistency (0-100). Success rate = plain share of due days completed. */
 function calc(h){
+  if(memo.has(h.id))return memo.get(h.id);
   const t=today(),start=h.created>t?t:h.created,n=diffDays(start,t),m=Math.pow(.5,1/13);
-  const per=h.freq.mode==='period',win=h.freq.period==='month'?30:7,tgt=Math.max(1,h.freq.count||1);
-  let score=0,sum=0,due=0,ok=0,comp=0,run=0,best=0;const miles=[];
+  let score=0,sum=0,due=0,ok=0,comp=0,run=0,best=0;const miles=[],wd=Array.from({length:7},()=>({due:0,ok:0}));
   for(let i=0;i<=n;i++){
     const d=addDays(start,i),dn=isDone(h,d);if(dn)comp++;
     if(!isDue(h,d))continue;
-    let val,good;
-    if(per){let c=0;for(let k=0;k<win;k++)if(isDone(h,addDays(d,-k)))c++;val=Math.min(1,c/tgt);good=val>=1}
+    const f=rule(h,d).freq;let val,good;
+    if(f.mode==='period'){const win=f.period==='month'?30:7;let c=0;for(let k=0;k<win;k++)if(isDone(h,addDays(d,-k)))c++;val=Math.min(1,c/f.count);good=val>=1}
     else{val=dn?1:0;good=dn}
     if(d===t&&!good)continue;
     score=score*m+val*(1-m);sum+=val;due++;if(good)ok++;
+    const w=wd[pd(d).getDay()];w.due++;w.ok+=val;
     run=good?run+1:0;if(run>best)best=run;
     if(good&&MILES.includes(run))miles.push({date:d,n:run});
   }
-  return {score:score*100,rate:due?sum/due*100:0,sum,due,ok,comp,streak:run,best,miles,day:n+1};
+  const res={score:score*100,rate:due?sum/due*100:0,sum,due,ok,comp,streak:run,best,miles,wd,day:n+1};
+  memo.set(h.id,res);return res;
 }
 function overall(){
   const hs=active();let sc=0,sum=0,due=0;
   hs.forEach(h=>{const c=calc(h);sc+=c.score;sum+=c.sum;due+=c.due});
-  return {score:hs.length?sc/hs.length:0,rate:due?sum/due*100:0,days:hs.length?Math.max(...hs.map(h=>diffDays(h.created,today())+1)):0};
+  return {score:hs.length?sc/hs.length:0,rate:due?sum/due*100:0};
 }
 function dayStats(d,hs){
   let done=0,total=0;
   (hs||active()).forEach(h=>{const dn=isDone(h,d);if(dueOn(h,d)||dn){total++;if(dn)done++}});
   return {done,total,pct:total?done/total*100:0};
 }
+function perfect(){
+  const hs=active();if(!hs.length)return {count:0,streak:0,best:0};
+  const t=today();let count=0,run=0,best=0;
+  for(let d=hs.map(h=>h.created).sort()[0];d<=t;d=addDays(d,1)){
+    const s=dayStats(d,hs);if(!s.total)continue;const ok=s.done>=s.total;
+    if(d===t&&!ok)continue;
+    if(ok){count++;run++;if(run>best)best=run}else run=0;
+  }
+  return {count,streak:run,best};
+}
 
 /* ---------- meditation ---------- */
 const medElapsed=()=>{const m=S.med;return Math.max(0,m.acc+(m.start?Date.now()-m.start:0))};
-const medFrac=el=>{const g=S.med.goal;return g?Math.min(1,el/(g*1000)):(el%60000)/60000};
-function medSub(el){const m=S.med,g=m.goal;if(g&&el>=g*1000)return 'Goal reached';if(!m.start&&el>0)return 'Paused';return g?`Goal ${g/60} min`:'No goal set'}
-const medDay=d=>(S.medLog[d]||[]).reduce((a,b)=>a+b.s,0);
+const medTotal=el=>medDay(today())+el/1000;
+const medFrac=el=>Math.min(1,medTotal(el)/goalAt(today()));
+function medSub(el){const g=goalAt(today()),tot=medTotal(el);if(tot>=g)return 'Daily goal reached';if(!S.med.start&&el>0)return 'Paused';if(tot>=1)return `${fmtShort(tot)} of ${g/60} min today`;return `Daily goal ${g/60} min`}
 const medAll=()=>Object.keys(S.medLog).reduce((a,d)=>a+medDay(d),0);
-const medCount=()=>Object.keys(S.medLog).reduce((a,d)=>a+(S.medLog[d]||[]).length,0);
+const medCount=()=>Object.keys(S.medLog).reduce((a,d)=>a+S.medLog[d].length,0);
 const medHabit=()=>S.settings.medHabit?byId(S.settings.medHabit):null;
+function medStreak(){let d=today(),n=0;if(medDay(d)<goalAt(d))d=addDays(d,-1);while(medDay(d)>0&&medDay(d)>=goalAt(d)){n++;d=addDays(d,-1)}return n}
 let wl=null,actx=null,raf=0,lastSec=-1;
 async function wakeOn(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
 function wakeOff(){try{if(wl)wl.release()}catch(e){}wl=null}
-function medClear(){Object.assign(S.med,{acc:0,start:null,notified:false});wakeOff();save()}
+function medClear(){Object.assign(S.med,{acc:0,start:null,began:null,notified:false});wakeOff();save()}
+/* a paused timer from an earlier day can't be resumed into today */
+function medStale(){const m=S.med;if(m.start||!m.acc)return false;const b=m.began?ds(new Date(m.began)):today();if(b<today()){medClear();return true}return false}
 function audioUnlock(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;actx=actx||new C();if(actx.state==='suspended')actx.resume()}catch(e){}}
 function chime(){
   try{if(!actx)return;const t=actx.currentTime;
@@ -483,24 +601,26 @@ function chime(){
       o.connect(g);g.connect(actx.destination);o.start(t+dl);o.stop(t+dl+2.5)});
   }catch(e){}
 }
+const breathText=el=>Math.floor((el%8000)/4000)?'Breathe out':'Breathe in';
 function medTick(){
   raf=0;if(ui.view!=='med')return;
-  const el=medElapsed(),sec=Math.floor(el/1000),g=S.med.goal;
+  const el=medElapsed(),sec=Math.floor(el/1000);
   const r=document.getElementById('mr');
   if(r)r.style.strokeDasharray=`${(medFrac(el)*MC).toFixed(2)} ${MC.toFixed(2)}`;
+  const br=document.getElementById('mbr');if(br&&S.med.start){const tx=breathText(el);if(br.textContent!==tx)br.textContent=tx}
   if(sec!==lastSec){lastSec=sec;const tx=document.getElementById('mt'),sb=document.getElementById('ms');if(tx)tx.textContent=fmtClock(sec);if(sb)sb.textContent=medSub(el)}
-  if(S.med.start&&g&&!S.med.notified&&el>=g*1000){
+  if(S.med.start&&!S.med.notified&&medTotal(el)>=goalAt(today())){
     S.med.notified=true;save();chime();try{navigator.vibrate&&navigator.vibrate([180,90,180])}catch(e){}
-    toast('Goal reached. Keep going or tap Save.');
+    toast('Daily goal reached. Tap Save to log it.');
   }
   if(S.med.start)raf=requestAnimationFrame(medTick);
 }
 
 /* ---------- UI state & navigation ---------- */
-const ui={view:'home',id:null,date:today(),filter:'all',cat:null,sheet:null,form:null,cal:null,update:false,later:false,newVer:null,stamp:today(),lk:null,pending:null};
+const ui={view:'home',id:null,date:today(),filter:'all',cat:null,sheet:null,form:null,cal:null,update:false,later:false,newVer:null,stamp:today(),lk:null,pending:null,persisted:null};
 function nav(view,id){ui.view=view;ui.id=id||null;ui.sheet=null;history.pushState({view,id:ui.id},'');render()}
 function tab(v){
-  if(ui.view===v){window.scrollTo({top:0,behavior:'smooth'});return}
+  if(ui.view===v){window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});return}
   ui.sheet=null;
   const st=history.state||{};
   if(!ROOTS.includes(ui.view)){
@@ -515,9 +635,15 @@ window.addEventListener('popstate',e=>{const s=e.state||{view:'home'};ui.view=s.
 try{history.replaceState({view:'home',id:null},'')}catch(e){}
 
 let tt;
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2400)}
+/* the single gate for changing any habit log */
+function canLog(d){
+  if(!clockOk()){toast(CLOCK_MSG);return false}
+  if(d!==today()){toast(d>today()?"You can't log future days.":'Past days are read-only. You can only change today.');return false}
+  return true;
+}
 
-/* ---------- DOM diffing: patch the page instead of rebuilding it, so transitions stay smooth ---------- */
+/* ---------- keyed DOM diffing: patch the page instead of rebuilding it, so transitions stay smooth ---------- */
 function morphEl(f,t){
   const fa=f.attributes,ta=t.attributes;
   for(let i=fa.length-1;i>=0;i--){const n=fa[i].name;if(!t.hasAttribute(n))f.removeAttribute(n)}
@@ -526,15 +652,34 @@ function morphEl(f,t){
   if(f.nodeName==='INPUT'){const v=t.getAttribute('value')||'';if(document.activeElement!==f&&f.value!==v)f.value=v;return}
   morphKids(f,t);
 }
+const keyOf=n=>n.nodeType===1?n.getAttribute('data-k'):null;
 function morphKids(from,to){
-  const fc=Array.from(from.childNodes),tc=Array.from(to.childNodes);
-  for(let i=0;i<tc.length;i++){
-    const f=fc[i],t=tc[i];
-    if(!f){from.appendChild(t);continue}
-    if(f.nodeType!==t.nodeType||f.nodeName!==t.nodeName||(f.nodeType===1&&f.getAttribute('data-k')!==t.getAttribute('data-k'))){from.replaceChild(t,f);continue}
-    if(f.nodeType===1)morphEl(f,t);else if(f.nodeValue!==t.nodeValue)f.nodeValue=t.nodeValue;
+  const keyed=new Map();
+  for(let c=from.firstChild;c;c=c.nextSibling){const k=keyOf(c);if(k!==null)keyed.set(k,c)}
+  let cur=from.firstChild;
+  for(const t of Array.from(to.childNodes)){
+    const k=keyOf(t);
+    if(k!==null){
+      const m=keyed.get(k);
+      if(m&&m.nodeName===t.nodeName){keyed.delete(k);if(m===cur)cur=cur.nextSibling;else from.insertBefore(m,cur);morphEl(m,t)}
+      else from.insertBefore(t,cur);
+      continue;
+    }
+    if(cur&&keyOf(cur)===null&&cur.nodeType===t.nodeType&&cur.nodeName===t.nodeName){
+      if(cur.nodeType===1)morphEl(cur,t);else if(cur.nodeValue!==t.nodeValue)cur.nodeValue=t.nodeValue;
+      cur=cur.nextSibling;
+    }else from.insertBefore(t,cur);
   }
-  for(let i=fc.length-1;i>=tc.length;i--)from.removeChild(fc[i]);
+  while(cur){const n=cur.nextSibling;from.removeChild(cur);cur=n}
+}
+/* FLIP: cards and list rows glide to their new spot instead of jumping */
+function flipBefore(){const m=new Map();root.querySelectorAll('[data-flip]').forEach(el=>m.set(el.getAttribute('data-k'),el.getBoundingClientRect().top));return m}
+function flipAfter(m){
+  root.querySelectorAll('[data-flip]').forEach(el=>{
+    if(!el.animate)return;const k=el.getAttribute('data-k'),top=el.getBoundingClientRect().top;
+    if(m.has(k)){const dy=m.get(k)-top;if(Math.abs(dy)>1)el.animate([{transform:`translateY(${dy}px)`},{transform:'none'}],{duration:340,easing:'cubic-bezier(.2,.8,.2,1)'})}
+    else el.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:280,easing:'ease-out'});
+  });
 }
 
 /* ---------- small builders ---------- */
@@ -546,6 +691,7 @@ function gauge(score){
   return `<svg class="gauge" viewBox="0 0 300 168" aria-hidden="true">${arc(172,124,'#e0574a')}${arc(114,66,'#2f7bff')}${arc(56,8,'#2f9e6a')}<g class="needle" data-rot="${rot}" style="transform:rotate(${rot}deg)"><path d="M150 50 L140.5 150 A9.5 9.5 0 0 0 159.5 150 Z" fill="#6b7587"/></g></svg>`;
 }
 function ring(fr){const c=2*Math.PI*21;return `<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke-width="3.5" stroke-linecap="round"><circle class="tr" cx="24" cy="24" r="21"/><circle class="pg" cx="24" cy="24" r="21" style="stroke-dasharray:${(fr*c).toFixed(1)} ${c.toFixed(1)}"/></svg>`}
+function barCol(val,max,label,lab2,isT){return `<div class="bc${isT?' tod':''}"><small>${lab2||''}</small><div class="bt"><div class="bv${val>0?' on':''}" style="height:${val>0?Math.max(6,val/max*100).toFixed(1):3}%"></div></div><span>${label}</span></div>`}
 const seg=(act,opts,cur)=>opts.map(([v,l])=>`<button class="sg${v===cur?' on':''}" data-act="${act}" data-v="${v}">${l}</button>`).join('');
 function heat(h){
   const W=22,t=today(),ws=startOfWeek(t);let out='';
@@ -556,24 +702,32 @@ function heat(h){
   }
   return `<div class="heat">${out}</div>`;
 }
-function ctrl(h,d){
+function ctrl(h,d,locked){
   const v=logOf(h,d),dn=isDone(h,d);
-  if(h.tracking==='count')return `<div class="cnt${dn?' on':''}"><button data-act="dec" data-id="${h.id}" aria-label="Decrease">−</button><span>${v||0}/${h.target||1}</span><button data-act="inc" data-id="${h.id}" aria-label="Increase">+</button></div>`;
-  if(h.tracking==='checklist'){const n=Array.isArray(v)?v.length:0;return `<button class="rb${dn?' on':''}" data-act="list" data-id="${h.id}" aria-label="Open checklist">${dn?IC.check:n+'/'+h.items.length}</button>`}
-  return `<button class="rb${dn?' on':''}" data-act="toggle" data-id="${h.id}" aria-label="Mark done">${IC.check}</button>`;
+  if(isMed(h)&&d>=S.settings.medFrom){
+    if(locked)return `<button class="rb lk${dn?' on':''}" data-act="locked" aria-label="Locked">${dn?IC.check:IC.lotus}</button>`;
+    return `<button class="rb${dn?' on':''}" data-act="tab" data-v="med" aria-label="Open the meditation timer">${dn?IC.check:IC.lotus}</button>`;
+  }
+  const r=rule(h,d);
+  if(r.tracking==='count'){
+    if(locked)return `<div class="cnt lk${dn?' on':''}" data-act="locked"><span>${v||0}/${r.target}</span></div>`;
+    return `<div class="cnt${dn?' on':''}"><button data-act="dec" data-id="${h.id}" aria-label="Decrease">−</button><span>${v||0}/${r.target}</span><button data-act="inc" data-id="${h.id}" aria-label="Increase">+</button></div>`;
+  }
+  if(r.tracking==='checklist'){const n=Array.isArray(v)?v.length:0;return `<button class="rb${dn?' on':''}${locked?' lk':''}" data-act="${locked?'locked':'list'}" data-id="${h.id}" aria-label="Checklist">${dn?IC.check:n+'/'+r.items.length}</button>`}
+  return `<button class="rb${dn?' on':''}${locked?' lk':''}" data-act="${locked?'locked':'toggle'}" data-id="${h.id}" aria-label="${locked?'Locked':'Mark done'}">${IC.check}</button>`;
 }
-function card(h,d){
-  const c=calc(h),has=!!S.notes[h.id+'|'+d];
+function card(h,d,locked){
+  const c=calc(h),has=!!S.notes[h.id+'|'+d],fut=d>today();
   let sub=h.showStreak?`Streak: ${c.streak} day${c.streak===1?'':'s'}`:esc(h.desc||h.category||'');
-  if(h.id===S.settings.medHabit){const s=medDay(d);if(s)sub+=`${sub?' · ':''}${fmtShort(s)} meditated`}
-  return `<div class="hc${dueOn(h,d)||isDone(h,d)?'':' dim'}" style="--c:${h.color}" data-act="open" data-id="${h.id}" data-k="${h.id}">
+  if(isMed(h)){const s=medDay(d);if(s)sub+=`${sub?' · ':''}${fmtShort(s)} meditated`}
+  return `<div class="hc${dueOn(h,d)||isDone(h,d)?'':' dim'}" style="--c:${h.color}" data-act="open" data-id="${h.id}" data-k="${h.id}" data-flip="1">
 <div class="hr"><div class="ico">${esc(h.icon)}</div><div class="mt"><div class="ttl">${esc(h.title)}</div><div class="sub">${sub}</div></div>
-<button class="rb note${has?' has':''}" data-act="note" data-id="${h.id}" aria-label="Add note">${IC.note}</button>${ctrl(h,d)}</div>${heat(h)}</div>`;
+<button class="rb note${has?' has':''}${fut?' lk':''}" data-act="${fut?'locked':'note'}" data-id="${h.id}" aria-label="Note">${IC.note}</button>${ctrl(h,d,locked)}</div>${heat(h)}</div>`;
 }
 
 /* ---------- views ---------- */
 function vHome(){
-  const t=today(),d=ui.date,hs=active();
+  const t=today(),d=ui.date,hs=active(),locked=d!==t||!clockOk();
   const cats=[...new Set(hs.map(h=>h.category).filter(Boolean))];
   if(ui.cat&&!cats.includes(ui.cat))ui.cat=null;
   const list=hs.filter(h=>!ui.cat||h.category===ui.cat);
@@ -584,15 +738,18 @@ function vHome(){
     const x=addDays(ws,i),st=dayStats(x,hs),fr=x>t?0:(st.total?st.done/st.total:0);
     strip+=`<button class="wd${x===d?' sel':''}${x>t?' fut':''}" data-act="day" data-d="${x}"><div>${DN[pd(x).getDay()]}</div><div class="dc">${ring(fr)}<span>${pd(x).getDate()}</span></div></button>`;
   }
-  const s2=dayStats(d,list),ov=overall(),dt=pd(d);
+  const s2=dayStats(d,list),ov=overall(),dt=pd(d),all=s2.total>0&&s2.done>=s2.total;
   const title=d===t?`Today, <b>${longDate(d)}</b>`:`${DN[dt.getDay()]}, <b>${longDate(d)}</b>`;
-  return `<div class="hd"><h1 data-act="gotoday">${title}</h1><button class="ib" data-act="share" aria-label="Share progress">${IC.share}</button><button class="ib" data-act="tab" data-v="data" aria-label="Settings and data">${IC.gear}</button></div>
+  const bars=(!clockOk()?`<div class="lockbar warn" data-k="clk">${IC.warn}<span>${CLOCK_MSG}</span></div>`:'')
+    +(d!==t?`<div class="lockbar" data-k="past">${IC.lock}<span>${d<t?'This day is read-only.':'Future days are read-only.'} Only today can be changed.</span><button data-act="gotoday">Today</button></div>`:'');
+  return `<div class="hd"><h1 data-act="gotoday">${title}</h1><button class="ib" data-act="share" aria-label="Share progress">${IC.share}</button></div>
 <div class="wk">${strip}</div>
 <div class="fr"><div><label>Filter</label><div class="pl"><button class="${ui.filter==='all'?'on':''}" data-act="filter" data-f="all">All (${list.length})</button><button class="${ui.filter==='due'?'on':''}" data-act="filter" data-f="due">Due (${dueL.length})</button></div></div>
 <div><label style="text-align:right">Habit Score</label><button class="sc" data-act="score">${IC.gauge}${ov.score.toFixed(1)}%</button></div></div>
-${cats.length>1?`<div class="cats"><button class="ch${ui.cat?'':' on'}" data-act="cat" data-c="">All categories</button>${cats.map(c=>`<button class="ch${ui.cat===c?' on':''}" data-act="cat" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:''}
-${hs.length?`<div class="tb"><b>${s2.done} of ${s2.total}</b> done ${d===t?'today':'on this day'} · ${s2.pct.toFixed(0)}%<div class="bar"><i style="width:${s2.pct.toFixed(1)}%"></i></div></div>`:''}
-${shown.length?shown.map(h=>card(h,d)).join(''):`<div class="empty">${hs.length?'Nothing is due on this day.':'No habits yet.<br>Tap + to add your first one.'}</div>`}`;
+${cats.length>1?`<div class="cats">${[['','All categories'],...cats.map(c=>[c,c])].map(([v,l])=>`<button class="ch${(ui.cat||'')===v?' on':''}" data-act="cat" data-c="${esc(v)}">${esc(l)}</button>`).join('')}</div>`:''}
+${hs.length?`<div class="tb${all?' all':''}">${all?`<b>All ${s2.total} done</b> ${d===t?'today. Nice work.':'on this day'}`:`<b>${s2.done} of ${s2.total}</b> done ${d===t?'today':'on this day'} · ${s2.pct.toFixed(0)}%`}<div class="bar"><i style="width:${s2.pct.toFixed(1)}%"></i></div></div>`:''}
+${bars}
+${shown.length?shown.map(h=>card(h,d,locked)).join(''):`<div class="empty">${hs.length?'Nothing is due on this day.':'No active habits.<br>Tap + to add one, or restore one from the Data tab.'}</div>`}`;
 }
 
 function vTimeline(){
@@ -600,33 +757,37 @@ function vTimeline(){
   hs.forEach(h=>{ev.push({d:h.created,o:0,k:'start',t:`Started “${h.title}”`});if(h.showStreak)calc(h).miles.forEach(m=>ev.push({d:m.date,o:1,k:'mile',t:`${h.title}: ${m.n}-day streak`}))});
   if(hs.length){
     const first=hs.map(h=>h.created).sort()[0];
-    for(let d=first;d<=t;d=addDays(d,1)){const s=dayStats(d,hs);if(s.done>0)ev.push({d,o:2,k:'day',t:`${s.done} of ${s.total} habits done`})}
+    for(let d=first;d<=t;d=addDays(d,1)){const s=dayStats(d,hs);if(s.done>0)ev.push({d,o:2,k:'day',t:s.done>=s.total?`Perfect day: all ${s.total} habits done`:`${s.done} of ${s.total} habits done`})}
   }
   Object.keys(S.medLog).forEach(d=>{const s=medDay(d);if(s)ev.push({d,o:3,k:'med',t:`Meditated ${fmtDur(s)}`})});
   ev.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:b.o-a.o);
-  let out='',cur='',first=true;
+  let out='',cm='',first=true;
   ev.slice(0,300).forEach(e=>{
     const dt=pd(e.d),mo=`${MLONG[dt.getMonth()]} ${dt.getFullYear()}`;
-    if(mo!==cur){cur=mo;out+=`<h4 class="mo">${mo}</h4>`}
+    if(mo!==cm){cm=mo;out+=`<h4 class="mo">${mo}</h4>`}
     const icon={start:IC.flag,mile:IC.fire,med:IC.lotus,day:IC.check}[e.k];
     out+=`<div class="ev${first?' first':''}"><div class="dot">${first?IC.check:''}</div><div class="evc">${icon}<span class="tx">${esc(e.t)}</span><small>${dt.getDate()} ${MN[dt.getMonth()]}</small></div></div>`;
     first=false;
   });
-  return `<div class="top"><h1 class="tt">Timeline</h1><button class="ib" data-act="share" aria-label="Share progress">${IC.share}</button></div>
+  return `<div class="top"><h1 class="tt">Timeline</h1></div>
 ${ev.length?`<div class="tw">${out}</div>`:'<div class="empty">Your timeline fills up as you log habits.</div>'}`;
 }
 
 function vScore(){
-  const hs=active(),ov=overall(),s2=dayStats(today(),hs);
+  const hs=active(),ov=overall(),pf=perfect(),t=today();
+  let bars='';
+  for(let i=6;i>=0;i--){const d=addDays(t,-i),s=dayStats(d,hs),p=s.total?s.done/s.total*100:0;bars+=barCol(p,100,DN[pd(d).getDay()].slice(0,1),s.total?Math.round(p)+'%':'',d===t)}
   return `<div class="top"><button class="ib flat" data-act="back" aria-label="Back">${IC.back}</button><h1>Habit Score</h1><button class="ib flat" data-act="info" aria-label="What is Habit Score">${IC.info}</button><button class="ib" data-act="share" aria-label="Share progress">${IC.share}</button></div>
 <div class="gcard"><h2>Overall Score</h2>${gauge(ov.score)}<div class="pill">${ov.score.toFixed(2)} out of 100</div></div>
-<div class="trio"><div class="st"><b>${ov.rate.toFixed(0)}%</b><span>Success rate</span></div><div class="st"><b>${s2.done}/${s2.total}</b><span>Done today</span></div><div class="st"><b>${ov.days}</b><span>Days tracked</span></div></div>
+<div class="trio"><div class="st"><b>${ov.rate.toFixed(0)}%</b><span>Success rate</span></div><div class="st"><b>${pf.count}</b><span>Perfect days</span></div><div class="st"><b>${pf.streak}</b><span>Perfect streak</span></div></div>
+<div class="card"><h3>Last 7 days</h3><div class="bars">${bars}</div><p class="cap">Best perfect-day streak: ${pf.best} day${pf.best===1?'':'s'}</p></div>
 <div class="gg">${hs.map(h=>{const c=calc(h);return `<div class="gc" data-act="open" data-id="${h.id}" data-k="${h.id}">${gauge(c.score)}<div class="gn">${esc(h.title)}</div><div class="pill">${c.score.toFixed(1)}%</div><div class="gs">Success ${c.rate.toFixed(0)}%</div></div>`}).join('')}</div>`;
 }
 
+function freqText(f){return {daily:'Every day',weekdays:'On '+f.days.map(n=>DN[n]).join(', '),monthdays:'On day '+f.mdays.join(', ')+' of the month',period:`${f.count} days per ${f.period}`}[f.mode]}
 function vDetail(){
   const h=byId(ui.id);if(!h){ui.view='home';return vHome()}
-  const c=calc(h),t=today(),isMed=h.id===S.settings.medHabit;
+  const c=calc(h),t=today(),med=isMed(h),r=cur(h);
   if(!ui.cal){const n=new Date();ui.cal={y:n.getFullYear(),m:n.getMonth()}}
   const {y,m}=ui.cal,lead=(new Date(y,m,1).getDay()-S.settings.weekStart+7)%7,dim=new Date(y,m+1,0).getDate();
   let cells='';
@@ -635,25 +796,29 @@ function vDetail(){
   for(let day=1;day<=dim;day++){
     const d=ds(new Date(y,m,day));let cls='';
     if(d>t)cls='cf';else if(isDone(h,d))cls='cd';else if(d>=h.created&&isDue(h,d)&&d<t)cls='cm';
-    if(d===t)cls+=' ct';
+    if(d===t)cls+=' ct';if(S.notes[h.id+'|'+d])cls+=' nt';
     cells+=`<button class="${cls.trim()}" data-act="calday" data-d="${d}">${day}</button>`;
   }
-  const freqTxt={daily:'Every day',weekdays:'Selected weekdays',monthdays:'Selected days of the month',period:`${h.freq.count} days per ${h.freq.period}`}[h.freq.mode];
+  let wk='',any=false;
+  for(let i=0;i<7;i++){const dw=(S.settings.weekStart+i)%7,w=c.wd[dw],p=w.due?w.ok/w.due*100:0;if(w.due)any=true;wk+=barCol(p,100,DN[dw].slice(0,1),w.due?Math.round(p)+'%':'')}
+  const changed=h.rules.length>1?`<br>Schedule changed on ${longDate(r.from)}. Earlier days keep the old schedule.`:'';
+  const how=med?`Done when you meditate ${goalAt(t)/60} min with the timer`:r.tracking==='count'?`Target ${r.target} per day`:r.tracking==='checklist'?`${r.items.length}-item checklist`:'';
   return `<div class="top"><button class="ib flat" data-act="back" aria-label="Back">${IC.back}</button><h1>${esc(h.icon)} ${esc(h.title)}</h1></div>
-<p class="desc">${h.desc?esc(h.desc)+' · ':''}${freqTxt}</p>
+<p class="desc">${h.desc?esc(h.desc)+'<br>':''}${freqText(r.freq)}${how?'. '+how:''}${changed}</p>
 <div class="tl"><div class="st wide"><span>Success rate<br><small>${c.ok} of ${c.due} days completed</small></span><b>${c.rate.toFixed(0)}%</b></div>
 <div class="st"><b>${c.streak}</b><span>Current streak</span></div><div class="st"><b>${c.best}</b><span>Best streak</span></div>
 <div class="st"><b>${c.comp}</b><span>Total completions</span></div><div class="st"><b>Day ${c.day}</b><span>Since ${longDate(h.created)}</span></div>
-${isMed?`<div class="st wide"><span>Time meditated<br><small>${medCount()} sessions saved</small></span><b style="font-size:28px">${fmtShort(medAll())}</b></div>`:''}
+${med?`<div class="st wide"><span>Time meditated<br><small>${medCount()} sessions saved</small></span><b style="font-size:28px">${fmtShort(medAll())}</b></div>`:''}
 <div class="st wide"><span>Habit Score</span><b style="font-size:28px">${c.score.toFixed(1)}%</b></div></div>
+${any?`<div class="card"><h3>By day of the week</h3><div class="bars sm">${wk}</div></div>`:''}
 <div class="cal" style="--c:${h.color}"><div class="mh"><button data-act="calprev" aria-label="Previous month">${IC.chevl}</button>${MLONG[m]} ${y}<button data-act="calnext" aria-label="Next month">${IC.chev}</button></div><div class="cg">${cells}</div></div>
-<div class="acts">${isMed?`<button class="pr" data-act="tab" data-v="med">${IC.lotus}Timer</button>`:''}<button data-act="edit">${IC.edit}Edit</button><button class="dg" data-act="del">${IC.trash}Delete</button></div>`;
+<div class="acts">${med?`<button class="pr" data-act="tab" data-v="med">${IC.lotus}Open timer</button>`:''}<button data-act="edit">${IC.edit}Edit</button><button data-act="arch">${IC.archive}Archive</button><button class="dg" data-act="del">${IC.trash}Delete</button></div>`;
 }
 
-function blankForm(){return {title:'',desc:'',color:COLORS[0],icon:'🎯',type:'build',freq:{mode:'daily',days:[1,2,3,4,5],mdays:[1],count:3,period:'week'},tracking:'tick',target:1,unit:'',itemsText:'',category:'',showStreak:true}}
-function formFrom(h){return {title:h.title,desc:h.desc||'',color:h.color,icon:h.icon,type:h.type,freq:JSON.parse(JSON.stringify(h.freq)),tracking:h.tracking,target:h.target||1,unit:h.unit||'',itemsText:(h.items||[]).join('\n'),category:h.category||'',showStreak:h.showStreak!==false}}
+function blankForm(){return {title:'',desc:'',color:COLORS[0],icon:'🎯',type:'build',freq:cleanFreq({}),tracking:'tick',target:1,itemsText:'',category:'',showStreak:true}}
+function formFrom(h){const r=cur(h);return {title:h.title,desc:h.desc||'',color:h.color,icon:h.icon,type:h.type,freq:JSON.parse(JSON.stringify(r.freq)),tracking:r.tracking,target:r.target,itemsText:r.items.join('\n'),category:h.category||'',showStreak:h.showStreak!==false}}
 function vForm(){
-  const f=ui.form,ed=!!ui.id,fr=f.freq;
+  const f=ui.form,h=ui.id?byId(ui.id):null,ed=!!h,fr=f.freq,med=isMed(h);
   const radio=(v,l,sub)=>`<button class="rd${fr.mode===v?' on':''}" data-act="ffreq" data-v="${v}"><span class="rdo"></span>${l}</button>${fr.mode===v&&sub?`<div class="sb" data-k="sb-${v}">${sub}</div>`:''}`;
   const wd=`<div class="chips">${[1,2,3,4,5,6,0].map(n=>`<button class="ch${fr.days.includes(n)?' on':''}" data-act="fwd" data-v="${n}">${DN[n]}</button>`).join('')}</div>`;
   const md=`<div class="chips">${Array.from({length:31},(_,i)=>i+1).map(n=>`<button class="ch${fr.mdays.includes(n)?' on':''}" data-act="fmd" data-v="${n}">${n}</button>`).join('')}</div>`;
@@ -662,45 +827,56 @@ function vForm(){
   let trk='';
   if(f.tracking==='count')trk=`<div class="step" style="margin-top:16px;justify-content:center">Target<div class="sp"><button data-act="fstep" data-k="target" data-s="-1" aria-label="Lower target">−</button><span>${f.target}</span><button data-act="fstep" data-k="target" data-s="1" aria-label="Raise target">+</button></div>per day</div>`;
   if(f.tracking==='checklist')trk=`<textarea class="inp" data-f="itemsText" placeholder="One item per line">${esc(f.itemsText)}</textarea>`;
+  const tracking=med?`<section class="blk"><h3>Tracking</h3><p>This habit is completed by the Meditate tab once you reach your daily goal (${goalAt(today())/60} min).</p></section>`
+    :`<section class="blk"><h3>Tracking</h3><div class="seg">${seg('ftrack',[['tick','Tick'],['count','Count'],['checklist','Checklist']],f.tracking)}</div><p class="hint">${hints[f.tracking]}</p>${trk}</section>`;
   return `<div class="top"><button class="ib flat" data-act="back" aria-label="Back">${IC.back}</button><h1>${ed?'Edit Habit':'Add Habit'}</h1><button class="save" data-act="save">Save ${IC.check}</button></div>
 <input class="inp" data-f="title" placeholder="Enter Habit Title" value="${esc(f.title)}" maxlength="60" autocomplete="off">
 <input class="inp" data-f="desc" placeholder="Enter Description (optional)" value="${esc(f.desc)}" maxlength="120" autocomplete="off">
 <div class="pick"><button class="pk" data-act="pcolor"><i><b style="background:${f.color}"></b></i>Color</button><button class="pk" data-act="picon"><span>${esc(f.icon)}</span>Icon</button></div>
 <section class="blk"><h3>Type</h3><div class="seg">${seg('ftype',[['build','Build A Habit'],['quit','Quit A Habit']],f.type)}</div><p class="hint">${f.type==='build'?'Do it regularly. Tap to mark it done.':'Avoid it. Tap each day you stayed clear.'}</p></section>
 <section class="blk"><h3>Frequency</h3>${radio('daily','Everyday')}${radio('weekdays','Specific Days of Week',wd)}${radio('monthdays','Specific Days of Month',md)}${radio('period','Some Days Per Period',per)}</section>
-<section class="blk"><h3>Tracking</h3><div class="seg">${seg('ftrack',[['tick','Tick'],['count','Count'],['checklist','Checklist']],f.tracking)}</div><p class="hint">${hints[f.tracking]}</p>${trk}</section>
+${tracking}
 <section class="blk"><h3>Category</h3><input class="inp" style="margin-bottom:12px" data-f="category" placeholder="Select or type a category" value="${esc(f.category)}" maxlength="24" autocomplete="off"><div class="chips">${CATS.map(c=>`<button class="ch${f.category===c?' on':''}" data-act="fcat" data-v="${c}">${c}</button>`).join('')}</div></section>
-<section class="blk"><div class="sline">Show Streaks<button class="sw${f.showStreak?' on':''}" data-act="fstreak" role="switch" aria-checked="${f.showStreak}" aria-label="Show streaks"></button></div></section>`;
+<section class="blk"><div class="sline">Show streak<button class="sw${f.showStreak?' on':''}" data-act="fstreak" role="switch" aria-checked="${f.showStreak}" aria-label="Show streak"></button></div></section>
+${ed?'<p class="fnote">Changes to frequency or tracking apply from today. Past days keep the rules they had.</p>':''}`;
 }
 
 function vMed(){
-  const m=S.med,el=medElapsed(),sec=Math.floor(el/1000),t=today(),run=!!m.start;
-  const ws=startOfWeek(t),wk=[];let mx=Math.max(m.goal||600,60);
+  const m=S.med,el=medElapsed(),sec=Math.floor(el/1000),t=today(),run=!!m.start,g=goalAt(t);
+  const ws=startOfWeek(t),wk=[];let mx=Math.max(g,60);
   for(let i=0;i<7;i++){const d=addDays(ws,i),s=medDay(d);wk.push([d,s]);if(s>mx)mx=s}
   const weekTot=wk.reduce((a,x)=>a+x[1],0);
-  const bars=wk.map(([d,s])=>`<div class="bc${d===t?' tod':''}"><small>${s?fmtShort(s):''}</small><div class="bt"><div class="bv${s?' on':''}" style="height:${s?Math.max(6,s/mx*100).toFixed(1):3}%"></div></div><span>${DN[pd(d).getDay()].slice(0,1)}</span></div>`).join('');
-  const days=Object.keys(S.medLog).filter(d=>(S.medLog[d]||[]).length).sort().reverse().slice(0,30);
-  const hist=days.map(d=>`<div class="hday" data-k="hd${d}"><div class="hdh"><b>${dayLabel(d)}</b><span>${fmtDur(medDay(d))}</span></div>${S.medLog[d].map((x,i)=>`<div class="hs"><span>${clock(x.at)}</span><span>${fmtDur(x.s)}</span><button class="xb" data-act="medDel" data-d="${d}" data-i="${i}" aria-label="Delete session">×</button></div>`).join('')}</div>`).join('');
+  const bars=wk.map(([d,s])=>barCol(s,mx,DN[pd(d).getDay()].slice(0,1),s?fmtShort(s):'',d===t)).join('');
+  const days=Object.keys(S.medLog).sort().reverse().slice(0,30);
+  const hist=days.map(d=>`<div class="hday" data-k="hd${d}"><div class="hdh"><b>${dayLabel(d)}</b><span>${fmtDur(medDay(d))}</span></div>${S.medLog[d].map((x,i)=>`<div class="hs"><span>${clock(x.at)}</span><span>${fmtDur(x.s)}</span>${d===t?`<button class="xb" data-act="medDel" data-d="${d}" data-i="${i}" aria-label="Delete session">×</button>`:''}</div>`).join('')}</div>`).join('');
   return `<div class="top"><h1 class="tt">Meditate</h1></div>
-<div class="goals">${GOALS.map(([g,l])=>`<button class="ch${m.goal===g?' on':''}" data-act="goal" data-v="${g}">${l}</button>`).join('')}</div>
-<div class="mring${run?' run':''}"><div class="glow"></div><svg viewBox="0 0 300 300" fill="none" stroke-width="14" stroke-linecap="round"><circle class="tr" cx="150" cy="150" r="130"/><circle class="pg" id="mr" cx="150" cy="150" r="130" style="stroke-dasharray:${(medFrac(el)*MC).toFixed(2)} ${MC.toFixed(2)}"/></svg><div class="mtime"><b id="mt">${fmtClock(sec)}</b><span id="ms">${medSub(el)}</span></div></div>
+<div class="goals">${GOALS.map(v=>`<button class="ch${g===v?' on':''}" data-act="goal" data-v="${v}">${v/60} min</button>`).join('')}</div>
+<p class="glabel">Daily goal. Reaching it completes your Meditate habit.</p>
+<div class="mring${run?' run':''}"><div class="glow" style="animation-delay:-${el%8000}ms"></div><svg viewBox="0 0 300 300" fill="none" stroke-width="14" stroke-linecap="round"><circle class="tr" cx="150" cy="150" r="130"/><circle class="pg" id="mr" cx="150" cy="150" r="130" style="stroke-dasharray:${(medFrac(el)*MC).toFixed(2)} ${MC.toFixed(2)}"/></svg><div class="mtime"><b id="mt">${fmtClock(sec)}</b><span id="ms">${medSub(el)}</span></div></div>
+<div class="breath${run?' on':''}" id="mbr">${run?breathText(el):''}</div>
 <div class="mbtns"><div class="mbw"><button class="mb" data-act="medReset" aria-label="Reset timer">${IC.reset}</button>Reset</div><button class="mb main" data-act="medToggle" aria-label="${run?'Pause':'Start'}">${run?IC.pause:IC.play}</button><div class="mbw"><button class="mb sv${el<1000?' off':''}" data-act="medSave" aria-label="Save session">${IC.check}</button>Save</div></div>
-<div class="trio four"><div class="st"><b>${fmtShort(medDay(t))}</b><span>Today</span></div><div class="st"><b>${fmtShort(weekTot)}</b><span>This week</span></div><div class="st"><b>${fmtShort(medAll())}</b><span>Total time meditated</span></div><div class="st"><b>${medCount()}</b><span>Sessions</span></div></div>
-<div class="card"><h3>This week</h3><div class="bars">${bars}</div></div>
+<div class="trio four"><div class="st"><b>${fmtShort(medDay(t))}</b><span>Today</span></div><div class="st"><b>${fmtShort(weekTot)}</b><span>This week</span></div><div class="st"><b>${fmtShort(medAll())}</b><span>Total time meditated</span></div><div class="st"><b>${medStreak()}</b><span>Day streak</span></div></div>
+<div class="card"><h3>This week</h3><div class="bars">${bars}</div><p class="cap">${medCount()} sessions saved in total</p></div>
 <h3 class="sect">History</h3>${hist||'<div class="empty sm">Saved sessions show up here, day by day.</div>'}`;
 }
 
 let CAN_SHARE_FILES=false;
 try{CAN_SHARE_FILES=!!(navigator.canShare&&navigator.canShare({files:[new File(['{}'],'t.json',{type:'application/json'})]}))}catch(e){}
+function hasData(){return Object.keys(S.logs).some(k=>Object.keys(S.logs[k]).length)||Object.keys(S.medLog).length>0}
+function backupDue(){const st=S.settings;if(!hasData())return false;if(!st.lastBackup)return diffDays(st.since,today())>=3;return diffDays(st.lastBackup,today())>=7}
 function vData(){
-  const st=S.settings;
+  const st=S.settings,arch=S.habits.filter(h=>h.archived).length,due=backupDue();
+  const ago=st.lastBackup?diffDays(st.lastBackup,today()):null;
   return `<div class="top"><h1 class="tt">Data</h1></div>
 <div class="appc">${LOGO}<div><b>Habit Log</b><span>Version ${APP_VERSION}</span></div></div>
-<div class="kv"><div><span>App created</span><b>${fullDate(APP_CREATED)}</b></div><div><span>Using since</span><b>${fullDate(st.since)}</b></div><div><span>Last backup</span><b>${st.lastBackup?fullDate(st.lastBackup):'Not yet'}</b></div></div>
+<div class="kv"><div><span>App created</span><b>${fullDate(APP_CREATED)}</b></div><div><span>Using since</span><b>${fullDate(st.since)}</b></div><div><span>Last backup</span><b>${st.lastBackup?(ago===0?'Today':fullDate(st.lastBackup)):'Not yet'}</b></div><div><span>Storage</span><b>${ui.persisted===true?'Protected':ui.persisted===false?'Standard':'Checking'}</b></div></div>
 <h3 class="sect">Backup</h3>
-<button class="row" data-act="export"><span>Export Data<small>Download a backup file to your phone</small></span>${IC.down}</button>
+<button class="row${due?' warm':''}" data-act="export"><span>Export Data<small>${due?(ago==null?'You have no backup yet. Save one now.':`Your last backup was ${ago} days ago.`):'Download a backup file to your phone'}</small></span>${IC.down}</button>
 ${CAN_SHARE_FILES?`<button class="row" data-act="sharebk"><span>Send backup<small>Save it to Google Drive, email or a chat</small></span>${IC.share}</button>`:''}
 <button class="row" data-act="import"><span>Import Data<small>Restore habits, history and meditation time</small></span>${IC.up}</button>
+<h3 class="sect">Habits</h3>
+<button class="row" data-act="order"><span>Rearrange habits<small>Change the order on the Habits tab</small></span>${IC.sort}</button>
+<button class="row" data-act="archlist"><span>Archived habits<small>${arch?`${arch} archived. Restore or delete them.`:'Habits you archive appear here'}</small></span>${IC.archive}</button>
 <h3 class="sect">App</h3>
 <button class="row${ui.update?' hl':''}" data-act="${ui.update?'reload':'checkupd'}"><span>${ui.update?'Update now':'Check for updates'}<small>${ui.update?`Version ${esc(ui.newVer||'')} is ready`:'Looks for a newer version of the app'}</small></span>${IC.refresh}</button>
 <section class="blk"><h3>Week starts on</h3><div class="seg">${seg('week',[['1','Monday'],['0','Sunday']],String(st.weekStart))}</div></section>
@@ -708,20 +884,22 @@ ${CAN_SHARE_FILES?`<button class="row" data-act="sharebk"><span>Send backup<smal
 }
 
 function navHtml(){
-  const it=(v,ic,l)=>`<button class="ni${ui.view===v?' on':''}" data-act="tab" data-v="${v}" aria-label="${l}">${ic}<span>${l}</span></button>`;
-  return `<nav class="nav" data-k="nav">${it('home',IC.grid,'Habits')}${it('med',IC.lotus,'Meditate')}<button class="add" data-act="add" aria-label="Add habit">${IC.plus}</button>${it('timeline',IC.lines,'Timeline')}${it('data',IC.db,'Data')}</nav>`;
+  const it=(v,ic,l,x='')=>`<button class="ni${ui.view===v?' on':''}${x}" data-act="tab" data-v="${v}" aria-label="${l}">${ic}<span>${l}</span></button>`;
+  return `<nav class="nav" data-k="nav">${it('home',IC.grid,'Habits')}${it('med',IC.lotus,'Meditate')}<button class="add" data-act="add" aria-label="Add habit">${IC.plus}</button>${it('timeline',IC.lines,'Timeline')}${it('data',IC.db,'Data',backupDue()?' dot':'')}</nav>`;
 }
 function sheetHtml(){
   const s=ui.sheet;let b='';
   if(s.t==='color')b=`<h3>Color</h3><div class="cgrid">${COLORS.map(c=>`<button class="cs${c===ui.form.color?' on':''}" style="background:${c}" data-act="pc" data-v="${c}" aria-label="Color ${c}"></button>`).join('')}</div>`;
   else if(s.t==='icon')b=`<h3>Icon</h3><div class="ig">${EMOJI.map(e=>`<button class="${e===ui.form.icon?'on':''}" data-act="pi" data-v="${e}">${e}</button>`).join('')}</div>`;
   else if(s.t==='cl'){
-    const h=byId(s.id),v=Array.isArray(logOf(h,s.date))?logOf(h,s.date):[];
-    b=`<h3>${esc(h.title)}</h3>${h.items.map((it,i)=>`<button class="cli${v.includes(i)?' on':''}" data-act="cl" data-i="${i}"><span class="bx">${v.includes(i)?IC.check:''}</span>${esc(it)}</button>`).join('')}<button class="btn g" data-act="closesheet">Done</button>`;
+    const h=byId(s.id),r=rule(h,s.date),v=Array.isArray(logOf(h,s.date))?logOf(h,s.date):[];
+    b=`<h3>${esc(h.title)}</h3>${r.items.map((it,i)=>`<button class="cli${v.includes(i)?' on':''}" data-act="cl" data-i="${i}"><span class="bx">${v.includes(i)?IC.check:''}</span>${esc(it)}</button>`).join('')}<button class="btn g" data-act="closesheet">Done</button>`;
   }
-  else if(s.t==='note'){const h=byId(s.id);b=`<h3>Note for ${esc(h.title)}</h3><textarea class="inp" id="nt" style="margin-top:0" placeholder="Write a note for ${longDate(s.date)}">${esc(S.notes[s.id+'|'+s.date]||'')}</textarea><button class="btn" data-act="savenote">Save note</button>`}
-  else if(s.t==='info')b=`<h3>What is Habit Score?</h3><p>Habit Score measures how strong a habit is. It weighs <b>recent days more</b>, so it grows fast at first, drops when you miss days, and recovers when you get back on track.</p><p><b>Success rate</b> is simpler: the share of due days you completed. Do a habit on 5 of 10 days and your success rate is 50%.</p><button class="btn g" data-act="closesheet">Got it</button>`;
+  else if(s.t==='note'){const h=byId(s.id);b=`<h3>Note for ${esc(h.title)}, ${dayLabel(s.date)}</h3><textarea class="inp" id="nt" style="margin-top:0" placeholder="Write a note for ${longDate(s.date)}">${esc(S.notes[s.id+'|'+s.date]||'')}</textarea><button class="btn" data-act="savenote">Save note</button>`}
+  else if(s.t==='info')b=`<h3>What is Habit Score?</h3><p>Habit Score measures how strong a habit is. It weighs <b>recent days more</b>, so it grows fast at first, drops when you miss days, and recovers when you get back on track.</p><p><b>Success rate</b> is simpler: the share of due days you completed. Do a habit on 5 of 10 days and your success rate is 50%.</p><p>A <b>perfect day</b> is a day where every habit that was due got done.</p><button class="btn g" data-act="closesheet">Got it</button>`;
   else if(s.t==='confirm')b=`<h3>${esc(s.title)}</h3><p>${esc(s.msg)}</p><button class="btn d" data-act="${s.yes}">${esc(s.label)}</button><button class="btn g" data-act="closesheet">Cancel</button>`;
+  else if(s.t==='order'){const hs=active();b=`<h3>Rearrange habits</h3>${hs.map((h,i)=>`<div class="rr" style="--c:${h.color}" data-k="o${h.id}" data-flip="1"><div class="ico">${esc(h.icon)}</div><div class="ttl">${esc(h.title)}</div><button class="xb" data-act="mv" data-id="${h.id}" data-s="-1" aria-label="Move up"${i?'':' style="visibility:hidden"'}>${IC.cup}</button><button class="xb" data-act="mv" data-id="${h.id}" data-s="1" aria-label="Move down"${i<hs.length-1?'':' style="visibility:hidden"'}>${IC.cdown}</button></div>`).join('')}<button class="btn g" data-act="closesheet">Done</button>`}
+  else if(s.t==='arch'){const hs=S.habits.filter(h=>h.archived);b=`<h3>Archived habits</h3>${hs.length?hs.map(h=>`<div class="rr" style="--c:${h.color}" data-k="a${h.id}" data-flip="1"><div class="ico">${esc(h.icon)}</div><div class="ttl">${esc(h.title)}</div><button class="mini" data-act="restore" data-id="${h.id}">Restore</button><button class="mini d" data-act="adel" data-id="${h.id}">Delete</button></div>`).join(''):'<p>No archived habits. Archive one from its page to hide it without losing its history.</p>'}<button class="btn g" data-act="closesheet">Done</button>`}
   return `<div class="ov" data-act="closesheet" data-k="sheet-${s.t}"><div class="sh" data-act="noop" role="dialog" aria-modal="true">${b}</div></div>`;
 }
 function modalHtml(){
@@ -730,24 +908,26 @@ function modalHtml(){
 
 const root=document.getElementById('app');
 function render(){
+  memo.clear();
   if(ui.view==='form'&&!ui.form)ui.view='home';
   const V={home:vHome,timeline:vTimeline,score:vScore,detail:vDetail,form:vForm,med:vMed,data:vData}[ui.view]||vHome;
   const body=V();
   const key=ui.view+(ui.view==='detail'||ui.view==='form'?':'+(ui.id||'new'):'');
-  const showModal=ui.update&&!ui.later;
+  const viewChanged=ui.lk!==key,showModal=ui.update&&!ui.later;
   const html=`<div class="ban${ui.update&&ui.later?'':' hide'}" data-k="ban">Update ready<button data-act="reload">Update now</button></div>`
     +`<main class="view" data-k="${esc(key)}">${body}</main>`
     +(ROOTS.includes(ui.view)?navHtml():'')
     +(ui.sheet?sheetHtml():'')
     +(showModal?modalHtml():'');
-  // let closing overlays animate out instead of vanishing
   root.querySelectorAll(':scope > .ov, :scope > .modal').forEach(el=>{
-    const keep=el.classList.contains('ov')?(ui.sheet&&el.getAttribute('data-k')==='sheet-'+ui.sheet.t):showModal;
+    const keep=el.classList.contains('ov')?!!(ui.sheet&&el.getAttribute('data-k')==='sheet-'+ui.sheet.t):showModal;
     if(!keep){document.body.appendChild(el);el.classList.add('out');setTimeout(()=>el.remove(),240)}
   });
+  const before=viewChanged||REDUCED?null:flipBefore();
   const tpl=document.createElement('template');tpl.innerHTML=html;
   morphKids(root,tpl.content);
-  if(ui.lk!==key){window.scrollTo(0,0);ui.lk=key}
+  if(viewChanged){window.scrollTo(0,0);ui.lk=key}
+  if(before)flipAfter(before);
   document.querySelectorAll('.needle').forEach(n=>{
     if(n._m)return;n._m=1;
     n.style.transition='none';n.style.transform='rotate(-90deg)';n.getBoundingClientRect();
@@ -762,15 +942,25 @@ function shareText(){
   return `Habit Log: Habit Score ${ov.score.toFixed(0)}/100, success rate ${ov.rate.toFixed(0)}%. Today ${s.done} of ${s.total} habits done. Total meditation ${fmtShort(medAll())}.`;
 }
 function saveForm(){
-  const f=ui.form,title=f.title.trim();
+  const f=ui.form,title=f.title.trim(),h=ui.id?byId(ui.id):null;
   if(!title)return toast('Enter a habit title');
   if(f.freq.mode==='weekdays'&&!f.freq.days.length)return toast('Pick at least one weekday');
   if(f.freq.mode==='monthdays'&&!f.freq.mdays.length)return toast('Pick at least one day of the month');
-  const items=f.itemsText.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(f.tracking==='checklist'&&!items.length)return toast('Add at least one checklist item');
-  const base={title,desc:f.desc.trim(),color:f.color,icon:f.icon,type:f.type,freq:JSON.parse(JSON.stringify(f.freq)),tracking:f.tracking,target:Math.max(1,f.target|0),unit:f.unit.trim(),items,category:f.category.trim(),showStreak:f.showStreak};
-  if(ui.id){const h=byId(ui.id);if(h)Object.assign(h,base)}else S.habits.push(mk(base));
-  save();toast('Habit saved');history.back();
+  const items=f.itemsText.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,30);
+  if(f.tracking==='checklist'&&!items.length&&!isMed(h))return toast('Add at least one checklist item');
+  const t=today();
+  const nr=cleanRule({from:t,freq:f.freq,tracking:f.tracking,target:f.target,items},t);
+  const meta={title,desc:f.desc.trim().slice(0,120),color:reColor.test(f.color)?f.color:COLORS[0],icon:f.icon,type:f.type,category:f.category.trim().slice(0,24),showStreak:f.showStreak};
+  if(h){
+    Object.assign(h,meta);
+    const c=cur(h);
+    if(ruleSig(c)!==ruleSig(nr)){
+      if(c.tracking!==nr.tracking&&S.logs[h.id])delete S.logs[h.id][t];
+      if(c.from>=t){nr.from=c.from;h.rules[h.rules.length-1]=nr}else h.rules.push(nr);
+      toast('Saved. The new schedule starts today.');
+    }else toast('Habit saved');
+  }else{S.habits.push({id:uid(),...meta,created:t,archived:false,rules:[nr]});S.logs[S.habits[S.habits.length-1].id]={};toast('Habit added')}
+  save();history.back();
 }
 const backupName=()=>`habit-log-backup-${today()}.json`;
 function exportData(){
@@ -791,7 +981,7 @@ async function checkUpdate(manual){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('bad');
     const j=await r.json();
-    if(j.version&&cmpV(j.version,APP_VERSION)>0){const isNew=!ui.update||ui.newVer!==j.version;ui.update=true;ui.newVer=j.version;if(isNew||manual)ui.later=false;render()}
+    if(j.version&&cmpV(j.version,APP_VERSION)>0){const isNew=!ui.update||ui.newVer!==j.version;ui.update=true;ui.newVer=String(j.version).slice(0,20);if(isNew||manual)ui.later=false;render()}
     else if(manual)toast('You have the latest version');
   }catch(e){if(manual)toast('Could not check for updates. Check your connection.')}
 }
@@ -802,13 +992,24 @@ function reload(){
 function buzz(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
 function popEl(sel){const b=document.querySelector(sel);if(!b)return;b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');setTimeout(()=>b.classList.remove('pop'),450)}
 function confirmSheet(title,msg,yes,label){ui.sheet={t:'confirm',title,msg,yes,label};render()}
+function deleteHabit(id){S.habits=S.habits.filter(x=>x.id!==id);delete S.logs[id];Object.keys(S.notes).forEach(k=>{if(k.startsWith(id+'|'))delete S.notes[k]});if(S.settings.medHabit===id)S.settings.medHabit=null;save()}
+function medSave(force){
+  if(!clockOk()){toast(CLOCK_MSG);return}
+  const secs=Math.round(medElapsed()/1000);if(secs<1){toast('Start the timer first');return}
+  if(!force&&secs>LONG_SESSION){confirmSheet('Save a long session?',`The timer ran for ${fmtDur(secs)}. If you forgot to stop it, cancel and tap Reset instead.`,'medSaveYes','Save anyway');return}
+  const d=today(),h=medHabit(),was=h?isDone(h,d):false;
+  (S.medLog[d]=S.medLog[d]||[]).push({at:Date.now(),s:secs});medClear();
+  const now=h?isDone(h,d):false;
+  ui.sheet=null;buzz();toast(`Saved ${fmtDur(secs)}.${!was&&now?' Meditate is done for today.':''}`);render();
+}
+function afterDayChange(){if(medStale())toast("Yesterday's unsaved timer was cleared");}
 
 function act(a,d){
   const h=d.id?byId(d.id):null,date=ui.date;
-  const fut=()=>{if(date>today()){toast("You can't log future days");return true}return false};
   switch(a){
     case 'noop':return;
     case 'tab':tab(d.v);return;
+    case 'locked':toast(!clockOk()?CLOCK_MSG:(ui.date>today()?"You can't log future days.":'Past days are read-only. You can only change today.'));return;
     case 'gotoday':ui.date=today();render();return;
     case 'day':ui.date=d.d;render();return;
     case 'filter':ui.filter=d.f;render();return;
@@ -817,24 +1018,35 @@ function act(a,d){
     case 'back':history.back();return;
     case 'share':{const txt=shareText();if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Progress copied'),()=>toast(txt));else toast(txt);return}
     case 'open':ui.cal=null;nav('detail',d.id);return;
-    case 'toggle':if(!h||fut())return;{const was=isDone(h,date);setLog(h,date,was?null:1);buzz();render();if(!was)popEl(`[data-act="toggle"][data-id="${h.id}"]`)}return;
-    case 'inc':if(!h||fut())return;setLog(h,date,(logOf(h,date)||0)+1);buzz();render();if(isDone(h,date))popEl(`[data-k="${h.id}"] .cnt`);return;
-    case 'dec':if(!h||fut())return;setLog(h,date,Math.max(0,(logOf(h,date)||0)-1));render();return;
-    case 'list':if(!h||fut())return;ui.sheet={t:'cl',id:d.id,date};render();return;
-    case 'cl':{const s=ui.sheet,hh=byId(s.id),cur=Array.isArray(logOf(hh,s.date))?logOf(hh,s.date).slice():[],i=+d.i,k=cur.indexOf(i);
-      if(k>=0)cur.splice(k,1);else cur.push(i);setLog(hh,s.date,cur);buzz();render();return}
-    case 'note':ui.sheet={t:'note',id:d.id,date};render();setTimeout(()=>{const n=document.getElementById('nt');if(n)n.focus()},350);return;
-    case 'savenote':{const s=ui.sheet,v=document.getElementById('nt').value.trim(),k=s.id+'|'+s.date;if(v)S.notes[k]=v;else delete S.notes[k];save();ui.sheet=null;toast(v?'Note saved':'Note removed');render();return}
+    case 'toggle':{if(!h||isMed(h)||!canLog(date))return;const was=isDone(h,date);setLog(h,date,was?null:1);buzz();render();if(!was)popEl(`[data-act="toggle"][data-id="${h.id}"]`);return}
+    case 'inc':if(!h||!canLog(date))return;setLog(h,date,Math.min(99999,(logOf(h,date)||0)+1));buzz();render();if(isDone(h,date))popEl(`[data-k="${h.id}"] .cnt`);return;
+    case 'dec':if(!h||!canLog(date))return;setLog(h,date,Math.max(0,(logOf(h,date)||0)-1));render();return;
+    case 'list':if(!h||!canLog(date))return;ui.sheet={t:'cl',id:d.id,date};render();return;
+    case 'cl':{const s=ui.sheet,hh=s&&byId(s.id);if(!hh||!canLog(s.date))return;const c0=Array.isArray(logOf(hh,s.date))?logOf(hh,s.date).slice():[],i=+d.i,k=c0.indexOf(i);
+      if(k>=0)c0.splice(k,1);else c0.push(i);setLog(hh,s.date,c0);buzz();render();return}
+    case 'note':if(date>today())return;ui.sheet={t:'note',id:d.id,date};render();setTimeout(()=>{const n=document.getElementById('nt');if(n)n.focus()},350);return;
+    case 'savenote':{const s=ui.sheet;if(!s||s.date>today())return;const v=document.getElementById('nt').value.trim().slice(0,1000),k=s.id+'|'+s.date;if(v)S.notes[k]=v;else delete S.notes[k];save();ui.sheet=null;toast(v?'Note saved':'Note removed');render();return}
     case 'closesheet':ui.sheet=null;render();return;
     case 'info':ui.sheet={t:'info'};render();return;
     case 'calprev':{let {y,m}=ui.cal;m--;if(m<0){m=11;y--}ui.cal={y,m};render();return}
     case 'calnext':{let {y,m}=ui.cal;m++;if(m>11){m=0;y++}ui.cal={y,m};render();return}
-    case 'calday':{const hh=byId(ui.id);if(!hh)return;if(d.d>today()){toast("You can't log future days");return}
-      if(hh.tracking==='tick'){setLog(hh,d.d,isDone(hh,d.d)?null:1);buzz();render()}else{ui.date=d.d;tab('home')}return}
+    case 'calday':{const hh=byId(ui.id);if(!hh)return;const dd=d.d,t=today();
+      if(dd>t){toast("You can't log future days.");return}
+      if(dd===t&&!isMed(hh)&&rule(hh,t).tracking==='tick'){if(!canLog(dd))return;setLog(hh,dd,isDone(hh,dd)?null:1);buzz();render();return}
+      if(S.notes[hh.id+'|'+dd]){ui.sheet={t:'note',id:hh.id,date:dd};render();return}
+      toast(dd===t?'Log this one from the Habits tab.':'Past days are read-only.');return}
     case 'add':ui.form=blankForm();nav('form');return;
     case 'edit':{const hh=byId(ui.id);if(!hh)return;ui.form=formFrom(hh);nav('form',ui.id);return}
-    case 'del':confirmSheet('Delete this habit?','All of its history and notes will be removed. This cannot be undone.','delyes','Delete habit');return;
-    case 'delyes':{const id=ui.id;S.habits=S.habits.filter(x=>x.id!==id);delete S.logs[id];Object.keys(S.notes).forEach(k=>{if(k.startsWith(id+'|'))delete S.notes[k]});save();ui.sheet=null;toast('Habit deleted');history.back();return}
+    case 'arch':{const hh=byId(ui.id);if(!hh)return;hh.archived=true;save();toast('Archived. Restore it from the Data tab.');history.back();return}
+    case 'restore':if(h){h.archived=false;save();toast(`${h.title} is back on your list`);render()}return;
+    case 'del':confirmSheet('Delete this habit?','All of its history and notes will be removed. This cannot be undone. Archive it instead to keep the history.','delyes','Delete habit');return;
+    case 'delyes':deleteHabit(ui.id);ui.sheet=null;toast('Habit deleted');history.back();return;
+    case 'adel':ui.pending=d.id;confirmSheet('Delete this habit?','All of its history and notes will be removed. This cannot be undone.','adelyes','Delete habit');return;
+    case 'adelyes':if(ui.pending)deleteHabit(ui.pending);ui.pending=null;ui.sheet={t:'arch'};toast('Habit deleted');render();return;
+    case 'order':ui.sheet={t:'order'};render();return;
+    case 'archlist':ui.sheet={t:'arch'};render();return;
+    case 'mv':{const list=active(),i=list.findIndex(x=>x.id===d.id),j=i+(+d.s);if(i<0||j<0||j>=list.length)return;
+      const a1=S.habits.indexOf(list[i]),b1=S.habits.indexOf(list[j]);[S.habits[a1],S.habits[b1]]=[S.habits[b1],S.habits[a1]];save();render();return}
     /* form */
     case 'ftype':ui.form.type=d.v;render();return;
     case 'ffreq':ui.form.freq.mode=d.v;render();return;
@@ -851,25 +1063,27 @@ function act(a,d){
     case 'pi':ui.form.icon=d.v;ui.sheet=null;render();return;
     case 'save':saveForm();return;
     /* meditation */
-    case 'goal':{const g=+d.v;S.med.goal=g;S.med.notified=g?medElapsed()>=g*1000:false;save();render();return}
-    case 'medToggle':{const m=S.med;if(m.start){m.acc+=Date.now()-m.start;m.start=null;wakeOff()}else{audioUnlock();if(!m.acc)m.notified=false;m.start=Date.now();wakeOn()}save();buzz();render();return}
+    case 'goal':{const g=+d.v,t=today(),G=S.med.goals,last=G[G.length-1];if(!GOALS.includes(g)||goalAt(t)===g)return;
+      if(last.from===t)last.goal=g;else G.push({from:t,goal:g});S.med.notified=medTotal(medElapsed())>=g;save();render();return}
+    case 'medToggle':{if(!clockOk()){toast(CLOCK_MSG);return}const m=S.med;
+      if(m.start){m.acc+=Date.now()-m.start;m.start=null;wakeOff()}
+      else{medStale();audioUnlock();if(!m.acc){m.began=Date.now();m.notified=medDay(today())>=goalAt(today())}m.start=Date.now();wakeOn()}
+      save();buzz();render();return}
     case 'medReset':{const el=medElapsed();if(el>=60000){confirmSheet('Reset the timer?',`You'll lose ${fmtDur(el/1000)} that hasn't been saved.`,'medResetYes','Reset timer');return}medClear();render();return}
     case 'medResetYes':medClear();ui.sheet=null;render();return;
-    case 'medSave':{const secs=Math.round(medElapsed()/1000);if(secs<1){toast('Start the timer first');return}
-      const dd=today();(S.medLog[dd]=S.medLog[dd]||[]).push({at:Date.now(),s:secs});medClear();
-      const mh=medHabit();let extra='';if(mh&&mh.tracking==='tick'&&!isDone(mh,dd)){setLog(mh,dd,1);extra='. Meditate is ticked for today'}
-      save();buzz();toast(`Saved ${fmtDur(secs)}${extra}`);render();return}
-    case 'medDel':ui.pending={d:d.d,i:+d.i};confirmSheet('Delete this session?','It will be removed from your meditation totals.','medDelYes','Delete session');return;
-    case 'medDelYes':{const p=ui.pending;if(p&&S.medLog[p.d]){S.medLog[p.d].splice(p.i,1);if(!S.medLog[p.d].length)delete S.medLog[p.d];save()}ui.pending=null;ui.sheet=null;toast('Session deleted');render();return}
+    case 'medSave':medSave(false);return;
+    case 'medSaveYes':medSave(true);return;
+    case 'medDel':if(d.d!==today()){toast('Past sessions are read-only.');return}ui.pending={d:d.d,i:+d.i};confirmSheet('Delete this session?','It will be removed from your meditation totals.','medDelYes','Delete session');return;
+    case 'medDelYes':{const p=ui.pending;if(p&&p.d===today()&&S.medLog[p.d]){S.medLog[p.d].splice(p.i,1);if(!S.medLog[p.d].length)delete S.medLog[p.d];save()}ui.pending=null;ui.sheet=null;toast('Session deleted');render();return}
     /* data */
-    case 'week':S.settings.weekStart=+d.v;save();render();return;
+    case 'week':S.settings.weekStart=+d.v===0?0:1;save();render();return;
     case 'export':exportData();return;
     case 'sharebk':shareBackup();return;
     case 'import':document.getElementById('file').click();return;
-    case 'importyes':{if(ui.pending){wakeOff();S=normalize(ui.pending);ui.pending=null;save();ui.sheet=null;ui.date=today();toast('Backup imported');tab('home')}return}
+    case 'importyes':{if(ui.pending&&typeof ui.pending==='object'){wakeOff();const keep=S.settings.maxSeen;S=sanitize(ui.pending);S.settings.maxSeen=Math.max(keep||0,Math.min(S.settings.maxSeen||0,Date.now()));ui.pending=null;save();ui.sheet=null;ui.date=today();toast('Backup imported');tab('home')}return}
     case 'checkupd':checkUpdate(true);return;
     case 'reset':confirmSheet('Reset everything?','This deletes all habits, history, notes and meditation time on this phone. Export a backup first if you want to keep them.','resetyes','Delete everything');return;
-    case 'resetyes':wakeOff();S=normalize(seed());save();ui.sheet=null;ui.date=today();toast('Everything was reset');tab('home');return;
+    case 'resetyes':{wakeOff();const keep=S.settings.maxSeen;S=sanitize(seedRaw());S.settings.maxSeen=keep;save();ui.sheet=null;ui.date=today();toast('Everything was reset');tab('home');return}
     case 'reload':reload();return;
     case 'later':ui.later=true;render();return;
   }
@@ -878,6 +1092,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
 document.addEventListener('input',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f&&ui.form&&f in ui.form)ui.form[f]=e.target.value});
 document.getElementById('file').addEventListener('change',e=>{
   const file=e.target.files[0];e.target.value='';if(!file)return;
+  if(file.size>5e6){toast('That file is too large to be a Habit Log backup');return}
   const r=new FileReader();
   r.onload=()=>{
     try{
@@ -887,18 +1102,21 @@ document.getElementById('file').addEventListener('change',e=>{
   };
   r.readAsText(file);
 });
+function dayCheck(){if(ui.stamp!==today()){const old=ui.stamp;ui.stamp=today();if(ui.date===old)ui.date=today();afterDayChange();return true}return false}
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState!=='visible')return;
-  if(ui.stamp!==today()){ui.stamp=today();ui.date=today()}
-  if(S.med.start)wakeOn();
+  dayCheck();if(S.med.start)wakeOn();
   checkUpdate(false);render();
 });
+setInterval(()=>{if(dayCheck())render()},30000);
 
+if(medStale())setTimeout(()=>toast("Yesterday's unsaved timer was cleared"),600);
 render();
 checkUpdate(false);
 setInterval(()=>checkUpdate(false),20*60*1000);
+try{if(navigator.storage&&navigator.storage.persisted)navigator.storage.persisted().then(p=>{if(p){ui.persisted=true;render();return}return navigator.storage.persist().then(x=>{ui.persisted=!!x;render()})}).catch(()=>{})}catch(e){}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
-window.__habit={get S(){return S},calc,overall,dayStats,ui,act,render,medElapsed};
+if(/[?&]test\b/.test(location.search))window.__habit={get S(){return S},calc,overall,dayStats,perfect,ui,act,render,medElapsed,clockOk};
 })();
 </script>
 </body>
