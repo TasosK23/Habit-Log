@@ -227,6 +227,20 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .cg .cell.cf{opacity:.35}
 .cg .cell.nt::after{content:"";position:absolute;top:4px;right:5px;width:5px;height:5px;border-radius:50%;background:currentColor}
 .cg .cell .cn{position:absolute;bottom:2px;left:0;right:0;font-size:9.5px;font-weight:700;font-style:normal;line-height:1;opacity:.8}
+.jh{display:flex;align-items:center;justify-content:space-between;margin:2px 0 12px}
+.jh .xb:disabled{opacity:.3}
+.jt{display:flex;align-items:center;gap:6px;font-size:18px;font-weight:600;padding:8px 10px;border-radius:12px}
+.jt svg{width:18px;height:18px;color:var(--mut)}
+.jg .cell{font-size:15px}
+.jg .cell.z{background:#0f1726}
+.jg .cell.pre{background:transparent;color:#4b566b;outline:1px dashed #253047;outline-offset:-3px}
+.jg .cell.fu{background:transparent;color:#5c6880}
+.jg .cell.cs{box-shadow:inset 0 0 0 2.5px #fff}
+.jg.r{animation:jr .42s var(--spring,ease) both}.jg.l{animation:jl .42s var(--spring,ease) both}
+@keyframes jr{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes jl{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+.jq{display:flex;gap:10px;margin-top:4px}.jq .btn{flex:1}
+.empty .btn{width:auto;display:block;margin:18px auto 0;padding:13px 22px}
 .lgd{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:12px;color:var(--mut);font-size:12.5px}
 .lgd i{width:13px;height:13px;border-radius:3px;display:block}
 .lgd span{margin:0 4px}
@@ -434,7 +448,7 @@ body.haspill #toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 <script>
 (()=>{
 'use strict';
-const APP_VERSION='2026.11.08.1';
+const APP_VERSION='2026.11.08.2';
 const APP_CREATED='2026-11-07';
 const KEY='habitlog.v1';
 const COLORS=['#4da3ff','#2f7bff','#5ee0ff','#8a9bff','#b18cff','#3ddc97','#ffc857','#ff7a7a','#ff7ac6','#9fb0c9'];
@@ -488,6 +502,7 @@ const IC={
  reset:I('<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/>','stroke-width="2.2"'),
  today:I('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15.2" r="1.7" fill="currentColor" stroke="none"/>','stroke-width="2"'),
  music:I('<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>','stroke-width="2"'),
+ ret:I('<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>','stroke-width="2.3"'),
  refresh:I('<path d="M20 12a8 8 0 1 1-2.4-5.7L20 8.5"/><path d="M20 3.5v5h-5"/>','stroke-width="2.2"')
 };
 const LOGO='<svg class="lg" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0d1a2c"/><circle cx="32" cy="32" r="19" fill="none" stroke="#1d3556" stroke-width="6"/><path d="M32 13a19 19 0 0 1 18.4 23.8" fill="none" stroke="#4da3ff" stroke-width="6" stroke-linecap="round"/><path d="M24 32.5l5.5 5.5L41 26.5" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -785,18 +800,20 @@ function toast(msg,action){const t=document.getElementById('toast');
 function hideToast(){clearTimeout(tt);document.getElementById('toast').classList.remove('on')}
 function setDate(x){if(!x||x===ui.date)return;ui.dir=x>ui.date?1:-1;ui.date=x;render()}
 function firstDay(){const hs=active();return hs.length?hs.map(h=>h.created).sort()[0]:today()}
+const MIN_DAY='2000-01-01',maxDay=()=>addDays(today(),365),inRange=x=>x>=MIN_DAY&&x<=maxDay();
+/* the first day this person used the app (earliest habit or install date) */
+function startDay(){const c=S.habits.map(h=>h.created).sort()[0],s0=S.settings.since;return c&&c<s0?c:s0}
 function shiftWeek(n){
-  const t=today(),nd0=addDays(ui.date,7*n),wk=startOfWeek(nd0);
-  if(wk>startOfWeek(t)){toast('That week hasn’t happened yet');return}
-  if(wk<startOfWeek(firstDay())){toast('Your history starts here');return}
-  setDate(nd0>t?t:nd0);
+  const nd=addDays(ui.date,7*n);
+  if(!inRange(nd)){toast(n>0?'That’s as far ahead as you can look':'That’s as far back as it goes');return}
+  tick();setDate(nd);
 }
 let swp0=null;
 document.addEventListener('touchstart',e=>{const w=e.target.closest&&e.target.closest('.wkh');swp0=w&&e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true});
 document.addEventListener('touchend',e=>{if(!swp0)return;const p0=swp0;swp0=null;const c=e.changedTouches[0],dx=c.clientX-p0.x,dy=c.clientY-p0.y;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)shiftWeek(dx<0?1:-1)},{passive:true});
 function pickDate(){
   const dp=document.getElementById('dp');if(!dp)return;
-  dp.min=startOfWeek(firstDay());dp.max=addDays(startOfWeek(today()),6);dp.value=ui.date;
+  dp.min=MIN_DAY;dp.max=maxDay();dp.value=ui.date;
   try{if(dp.showPicker){dp.showPicker();return}}catch(e){}
   try{dp.focus();dp.click()}catch(e){}
 }
@@ -940,7 +957,7 @@ function heatCells(h){
   heatCache.set(h.id,{k,html:cells});return cells;
 }
 function heat(h,d){
-  const t=today(),wd=startOfWeek(d),col=21+diffDays(startOfWeek(t),wd)/7,row=diffDays(wd,d),vis=col>=0&&d>=h.created;
+  const t=today(),wd=startOfWeek(d),col=21+diffDays(startOfWeek(t),wd)/7,row=diffDays(wd,d),vis=col>=0&&col<=21&&d>=h.created;
   return `<div class="heat" data-hk="${esc(heatKey(h))}" data-h="${h.id}" style="--sc:${col};--sr:${row};--so:${vis?1:0}"></div>`;
 }
 const heatTpl=new Map();
@@ -998,20 +1015,22 @@ function vHome(){
   const s2=dayStats(d,list),ov=overall(),dt=pd(d),all=s2.total>0&&s2.done>=s2.total;
   const title=d===t?`Today, <b>${longDate(d)}</b>`:`${DN[dt.getDay()]}, <b>${longDate(d)}</b>`;
   if(d!==t)ui.lockMsg=`${d<t?'This day is read-only.':'Future days are read-only.'} Only today can be changed.`;
-  const status=!s2.total?(d<first?'You weren’t tracking habits yet on this day':'Nothing was due on this day')
+  const sd=startDay(),pre=d<sd;
+  const preMsg=d<APP_CREATED&&sd>=APP_CREATED?`Habit Log didn’t exist yet on ${fullDate(d)}. It was created on ${fullDate(APP_CREATED)}.`:`You hadn’t started using Habit Log yet on ${fullDate(d)}. Your first day was ${fullDate(sd)}.`;
+  const status=pre?'Before you started Habit Log':d>t?(s2.total?`${s2.total} habit${s2.total===1?'':'s'} due on this day`:'Nothing due on this day'):!s2.total?(d<first?'You weren’t tracking habits yet on this day':'Nothing was due on this day')
     :all?`<b>All ${s2.total} done</b> ${d===t?'today. Nice work.':'on this day'}`:`<b><span data-cu="${s2.done}">${s2.done}</span> of ${s2.total}</b> done ${d===t?'today':'on this day'}`;
-  const empty=!all0.length?'No active habits.<br>Tap + to add one, or restore one from the Data tab.'
+  const empty=pre?`${preMsg}<button class="btn" data-act="jfirst">Go to ${longDate(sd)}</button>`:!all0.length?'No active habits.<br>Tap + to add one, or restore one from the Data tab.'
     :!hs.length?'You weren’t tracking habits yet on this day.'
     :ui.filter==='due'&&list.some(h=>dueOn(h,d)||isDone(h,d))?(d===t?'Everything due today is done. Nice work.':'Everything due on this day was done.')
     :'Nothing is due on this day.';
-  return `<div class="hd"><h1 data-act="pickdate" aria-label="Choose a date"><span class="ttx" data-k="tt${d}">${title}</span>${IC.cdown}</h1><button class="tdbtn${d===t?' off':''}" data-k="tdb" ${d===t?'tabindex="-1" aria-hidden="true"':'data-act="gotoday" aria-label="Go to today"'}>${IC.today}<span>Today</span></button></div>
+  return `<div class="hd"><h1 data-act="jump" aria-label="Choose a day"><span class="ttx" data-k="tt${d}">${title}</span>${IC.cdown}</h1><button class="tdbtn${d===t?' off':''}" data-k="tdb" ${d===t?'tabindex="-1" aria-hidden="true"':'data-act="gotoday" aria-label="Go to today"'}>${IC.ret}<span>Today</span></button><button class="ib" data-act="jump" data-k="jmp" aria-label="Go to any day">${IC.today}</button></div>
 <div class="wkh" data-k="wkh"><div class="wk swp" data-k="wk${ws}"><div class="si${d===t?' at-t':''}" style="--i:${si}" aria-hidden="true"><div class="wdl"></div><div class="dc"><i></i></div></div>${strip}</div></div>
 <div class="fr"><div><label>Filter</label><div class="pl"><button class="${ui.filter==='all'?'on':''}" data-act="filter" data-f="all">All (${list.length})</button><button class="${ui.filter==='due'?'on':''}" data-act="filter" data-f="due">Due (${dueL.length})</button></div></div>
 <div><label style="text-align:right">Habit Score</label><button class="sc" data-act="score">${IC.gauge}<span><span data-cu="${ov.score.toFixed(1)}" data-dec="1">${ov.score.toFixed(1)}</span>%</span></button></div></div>
 ${cats.length>1?`<div class="cats">${[['','All categories'],...cats.map(c=>[c,c])].map(([v,l])=>`<button class="ch${(ui.cat||'')===v?' on':''}" data-act="cat" data-c="${esc(v)}">${esc(l)}</button>`).join('')}</div>`:''}
 ${all0.length?`<div class="tb${all?' all':''}" data-k="tb"><span class="tbt">${status}</span><div class="bar${s2.total?'':' off'}"><i style="width:${s2.pct.toFixed(1)}%"></i></div></div>`:''}
 ${!clockOk()?`<div class="lockbar warn" data-k="clk">${IC.warn}<span>${CLOCK_MSG}</span></div>`:''}
-<div class="lbw${d!==t?' open':''}" data-k="lbw" aria-hidden="${d===t}"><div class="lbi"><div class="lockbar">${IC.lock}<span>${ui.lockMsg||''}</span></div></div></div>
+<div class="lbw${d!==t&&!pre?' open':''}" data-k="lbw" aria-hidden="${d===t||pre}"><div class="lbi"><div class="lockbar">${IC.lock}<span>${ui.lockMsg||''}</span></div></div></div>
 <div class="lw" data-k="lw"><div class="lst swp" data-k="ls${d}">${shown.length?shown.map(h=>card(h,d,locked)).join(''):`<div class="empty">${empty}</div>`}</div></div>`;
 }
 
@@ -1187,6 +1206,22 @@ function sheetHtml(){
     b=`<h3>${esc(h.title)}</h3>${r.items.map((it,i)=>`<button class="cli${v.includes(i)?' on':''}" data-act="cl" data-i="${i}"><span class="bx">${v.includes(i)?IC.check:''}</span>${esc(it)}</button>`).join('')}${v.length<r.items.length?'<button class="btn" data-act="clall">Tick all</button>':''}<button class="btn g" data-act="closesheet">Done</button>`;
   }
   else if(s.t==='cnt'){const h=byId(s.id),r=rule(h,s.date),v=logOf(h,s.date)||0;b=`<h3>${esc(h.title)}</h3><p>How many today? Your target is ${r.target}.</p><input class="inp" id="cntv" type="number" inputmode="numeric" min="0" max="99999" value="${v}"><button class="btn" data-act="cntsave">Save</button>`}
+  else if(s.t==='jump'){
+    const {y,m}=ui.jm,t=today(),sd=startDay(),hs=active(),first=`${y}-${pad(m+1)}-01`,lead=(dow(first)-S.settings.weekStart+7)%7,dim=new Date(y,m+1,0).getDate();
+    let cells='';for(let i=0;i<7;i++)cells+=`<div class="dn">${DN[(S.settings.weekStart+i)%7]}</div>`;
+    for(let i=0;i<lead;i++)cells+='<div class="e"></div>';
+    for(let day=1;day<=dim;day++){
+      const x=first.slice(0,8)+pad(day);let cls;
+      if(x<sd)cls='pre';else if(x>t)cls='fu';else{const st=dayStats(x,hs),f=st.total?st.done/st.total:0;cls=!st.total||!f?'z':f>=1?'cd':f>=.75?'l4':f>=.5?'l3':f>=.25?'l2':'l1'}
+      if(x===t)cls+=' ct';if(x===ui.date)cls+=' cs';
+      cells+=`<button class="cell ${cls}" data-act="jumpto" data-d="${x}" aria-label="${fullDate(x)}">${day}</button>`;
+    }
+    const mk=`${y}-${pad(m+1)}`,canPrev=mk>MIN_DAY.slice(0,7),canNext=mk<maxDay().slice(0,7);
+    b=`<div class="jh"><button class="xb" data-act="jm" data-s="-1" aria-label="Previous month"${canPrev?'':' disabled'}>${IC.chevl}</button><button class="jt" data-act="jpick" aria-label="Pick a month and year">${MLONG[m]} ${y}${IC.cdown}</button><button class="xb" data-act="jm" data-s="1" aria-label="Next month"${canNext?'':' disabled'}>${IC.chev}</button></div>
+<div class="cg jg${ui.jdir>0?' r':ui.jdir<0?' l':''}" data-k="jg${mk}" style="${shades('#4da3ff')}">${cells}</div>
+<div class="lgd" style="${shades('#4da3ff')}"><span>Less done</span><i style="background:var(--p1)"></i><i style="background:var(--p2)"></i><i style="background:var(--p3)"></i><i style="background:var(--p4)"></i><i style="background:var(--c)"></i><span>All done</span></div>
+<div class="jq"><button class="btn g" data-act="jfirst">First day</button><button class="btn" data-act="jtoday">Today</button></div>`;
+  }
   else if(s.t==='qa'){const h=byId(s.id);if(h){const list=active(),i=list.indexOf(h),fut=ui.date>today(),hasN=!!S.notes[h.id+'|'+ui.date];
     b=`<div class="qh"><div class="ico" style="--c:${h.color}">${esc(h.icon)}</div><h3>${esc(h.title)}</h3></div>${fut?'':`<button class="qi" data-act="qnote">${IC.note}<span>${hasN?'Edit note':'Add a note'}<small>${dayLabel(ui.date)}</small></span></button>`}<button class="qi" data-act="qopen">${IC.gauge}<span>Stats and history</span></button><button class="qi" data-act="qedit">${IC.edit}<span>Edit habit</span></button>${i>0?`<button class="qi" data-act="qmove" data-s="-1">${IC.cup}<span>Move up</span></button>`:''}${i>=0&&i<list.length-1?`<button class="qi" data-act="qmove" data-s="1">${IC.cdown}<span>Move down</span></button>`:''}<button class="qi" data-act="qarch">${IC.archive}<span>Archive<small>Hide it and keep its history</small></span></button>`}}
   else if(s.t==='note'){const h=byId(s.id);b=`<h3>Note for ${esc(h.title)}, ${dayLabel(s.date)}</h3><textarea class="inp" id="nt" style="margin-top:0" placeholder="Write a note for ${longDate(s.date)}">${esc(S.notes[s.id+'|'+s.date]||'')}</textarea><button class="btn" data-act="savenote">Save note</button>`}
@@ -1243,7 +1278,7 @@ function render(){
 }
 
 /* ---------- gestures: swipe the list to change day, long-press a habit, drag a popup down to close ---------- */
-function dayTarget(n){const nd=addDays(ui.date,n),t=today();return nd>addDays(startOfWeek(t),6)||nd<startOfWeek(firstDay())?null:nd}
+function dayTarget(n){const nd=addDays(ui.date,n);return inRange(nd)?nd:null}
 let dg=null,lp=null,sd=null;
 function lpCancel(){if(lp){clearTimeout(lp.tm);lp=null}}
 document.addEventListener('pointerdown',e=>{
@@ -1403,7 +1438,11 @@ function act(a,d){
     case 'locked':toast(!clockOk()?CLOCK_MSG:(ui.date>today()?"You can't log future days.":'Past days are read-only. You can only change today.'));return;
     case 'gotoday':if(ui.date!==today())tick();setDate(today());return;
     case 'day':if(d.d!==ui.date)tick();setDate(d.d);return;
-    case 'pickdate':pickDate();return;
+    case 'pickdate':case 'jpick':pickDate();return;
+    case 'jump':ui.jm={y:+ui.date.slice(0,4),m:+ui.date.slice(5,7)-1};ui.jdir=0;openSheet({t:'jump'});return;
+    case 'jm':{let {y,m}=ui.jm;const st=+d.s;m+=st;if(m<0){m=11;y--}if(m>11){m=0;y++}const mk=`${y}-${pad(m+1)}`;if(mk<MIN_DAY.slice(0,7)||mk>maxDay().slice(0,7))return;ui.jm={y,m};ui.jdir=st;tick();render();return}
+    case 'jumpto':case 'jfirst':case 'jtoday':{const x=a==='jfirst'?startDay():a==='jtoday'?today():d.d;if(!reDate.test(x||'')||!inRange(x))return;
+      if(x!==ui.date){tick();ui.dir=x>ui.date?1:-1;ui.date=x}if(ui.sheetH)closeSheet();else render();return}
     case 'filter':ui.filter=S.settings.filter=d.f==='due'?'due':'all';save();render();return;
     case 'cat':ui.cat=d.c||null;S.settings.cat=ui.cat||'';save();render();return;
     case 'score':nav('score');return;
@@ -1504,7 +1543,7 @@ function act(a,d){
 }
 document.addEventListener('click',e=>{if(ui.supp&&performance.now()-ui.supp<450){ui.supp=0;e.preventDefault();e.stopPropagation();return}const el=e.target.closest('[data-act]');if(el)act(el.dataset.act,el.dataset)});
 document.addEventListener('input',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f&&ui.form&&f in ui.form)ui.form[f]=e.target.value});
-document.getElementById('dp').addEventListener('change',e=>{const v=e.target.value;if(!reDate.test(v))return;const lo=startOfWeek(firstDay()),hi=addDays(startOfWeek(today()),6);setDate(v<lo?lo:v>hi?hi:v)});
+document.getElementById('dp').addEventListener('change',e=>{let v=e.target.value;if(!reDate.test(v))return;const hi=maxDay();v=v<MIN_DAY?MIN_DAY:v>hi?hi:v;if(ui.sheet&&ui.sheet.t==='jump'){if(v!==ui.date){ui.dir=v>ui.date?1:-1;ui.date=v;tick()}closeSheet()}else{tick();setDate(v)}});
 document.getElementById('file').addEventListener('change',e=>{
   const file=e.target.files[0];e.target.value='';if(!file)return;
   if(file.size>5e6){toast('That file is too large to be a Habit Log backup');return}
