@@ -294,6 +294,8 @@ textarea.inp{resize:none;min-height:100px;margin:12px 0 0;line-height:1.4}
 .evc svg{width:20px;height:20px;color:var(--ac);flex:none}
 .evc .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .evc small{color:var(--mut);font-size:13.5px;font-weight:400;flex:none}
+.evc .mtag{display:flex;align-items:center;gap:3px;color:#9fc6ff;font-size:13px;font-weight:500;flex:none;margin-right:-4px}
+.evc .mtag svg{width:15px;height:15px}
 
 /* meditation */
 .goals{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}
@@ -436,6 +438,21 @@ body.haspill #toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 #toast button{background:var(--ac);color:var(--on);border-radius:13px;padding:10px 14px;font-weight:600;font-size:14px;flex:none}
 .ban{position:sticky;top:max(8px,env(safe-area-inset-top));z-index:15;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ac);color:var(--on);border-radius:16px;padding:10px 12px 10px 16px;margin-bottom:12px;font-weight:600;font-size:15px}
 .ban.hide{display:none}
+.hd .ib.jmp{overflow:hidden;transition:width .4s var(--spring,ease),margin .4s var(--spring,ease),opacity .25s ease}
+.hd h1.lng{font-size:clamp(19px,5.9vw,24px)}
+.hd .ib.jmp.off{width:0;margin-left:-10px;opacity:0;visibility:hidden;pointer-events:none}
+.hc.cmp{padding:10px 12px;border-radius:20px}
+.lst .hc.cmp{contain-intrinsic-size:auto 70px}
+.ordl{position:relative}
+.rr .grip{width:44px;height:44px;display:grid;place-items:center;color:var(--mut);touch-action:none;cursor:grab;flex:none;margin-right:-8px}
+.rr .grip svg{width:20px;height:20px}
+.rr.lift{position:relative;z-index:3;background:#13203a;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.6);border-bottom-color:transparent}
+.hint0{margin:-6px 0 6px!important;font-size:14px!important}
+.jg{touch-action:pan-y}
+.ban.err{background:#3a1717;color:#ffd0ca;font-weight:500;line-height:1.35}
+.rr .ttl small{display:block;color:var(--mut);font-size:13px;font-weight:400;margin-top:2px}
+.empty .btn.g{margin-top:10px}
+.drf{color:#ffcf85!important;font-size:14px!important;margin:-6px 0 10px!important}
 .ban button{background:var(--on);color:#fff;border-radius:11px;padding:8px 13px;font-size:14px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
@@ -448,7 +465,7 @@ body.haspill #toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 <script>
 (()=>{
 'use strict';
-const APP_VERSION='2026.11.08.2';
+const APP_VERSION='2026.11.17.1';
 const APP_CREATED='2026-11-07';
 const KEY='habitlog.v1';
 const COLORS=['#4da3ff','#2f7bff','#5ee0ff','#8a9bff','#b18cff','#3ddc97','#ffc857','#ff7a7a','#ff7ac6','#9fb0c9'];
@@ -463,6 +480,7 @@ const ROOTS=['home','med','timeline','data'];
 const MC=2*Math.PI*130;
 const CLOCK_SLACK=3*3600e3;
 const LONG_SESSION=3*3600;
+const AWAY_MS=10*60e3;
 const CLOCK_MSG="Your phone's clock is earlier than your last visit. Fix the date and time to log habits.";
 const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 const SPRING=(()=>{const fb='cubic-bezier(.2,.9,.3,1)';try{if(!(window.CSS&&CSS.supports&&CSS.supports('transition-timing-function','linear(0, 1)')))return fb;
@@ -496,6 +514,7 @@ const IC={
  cdown:I('<path d="M6 9l6 6 6-6"/>','stroke-width="2.6"'),
  down:I('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>','stroke-width="2"'),
  up:I('<path d="M12 20V9M7 13l5-5 5 5M5 4h14"/>','stroke-width="2"'),
+ grip:I('<circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/>','fill="currentColor" stroke="none"'),
  sort:I('<path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/>','stroke-width="2"'),
  play:I('<path d="M8 5.5v13l10.5-6.5z"/>','fill="currentColor" stroke-width="1.5"'),
  pause:I('<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>','fill="currentColor" stroke="none"'),
@@ -590,7 +609,7 @@ function sanitize(o){
   out.spotify={url:cleanSpotify(o.spotify&&o.spotify.url)};
   out.settings={weekStart:st0.weekStart===0?0:1,since,lastBackup:reDate.test(st0.lastBackup)?st0.lastBackup:null,medHabit,
     medFrom:reDate.test(st0.medFrom)?st0.medFrom:t,maxSeen:Number(st0.maxSeen)>0?+st0.maxSeen:0,
-    filter:st0.filter==='due'?'due':'all',cat:typeof st0.cat==='string'?st0.cat.slice(0,24):'',doneLast:!!st0.doneLast,timeLeft:!!st0.timeLeft};
+    filter:st0.filter==='due'?'due':'all',cat:typeof st0.cat==='string'?st0.cat.slice(0,24):'',doneLast:!!st0.doneLast,timeLeft:!!st0.timeLeft,haptics:st0.haptics!==false,compact:!!st0.compact};
   out.done={};
   if(o.done&&typeof o.done==='object')Object.keys(o.done).forEach(k=>{const [oid,d]=k.split('|'),v=Number(o.done[k]);if(idMap[oid]&&reDate.test(d)&&d<=t&&v>0)out.done[idMap[oid]+'|'+d]=v});
   return out;
@@ -616,10 +635,12 @@ let S=load();
 const memo=new Map();
 const clockOk=()=>Date.now()>=(S.settings.maxSeen||0)-CLOCK_SLACK;
 let dataVer=0;
+let saveErr=false;
+const vib=p=>{try{if(S.settings.haptics!==false&&navigator.vibrate)navigator.vibrate(p)}catch(e){}};
 function save(){
   memo.clear();dataVer++;
   if(clockOk())S.settings.maxSeen=Math.max(S.settings.maxSeen||0,Date.now());
-  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save. Storage may be full.')}
+  try{localStorage.setItem(KEY,JSON.stringify(S));saveErr=false}catch(e){saveErr=true}
 }
 save();
 const active=()=>S.habits.filter(h=>!h.archived);
@@ -755,16 +776,30 @@ function medTick(){
   if(r)r.style.strokeDasharray=`${(medFrac(el)*MC).toFixed(2)} ${MC.toFixed(2)}`;
   if(sec!==lastSec){lastSec=sec;const tx=document.getElementById('mt'),sb=document.getElementById('ms');if(tx)tx.textContent=timeText(el);if(sb)sb.textContent=medSub(el)}
   if(S.med.start&&!S.med.notified&&medTotal(el)>=goalAt(today())){
-    S.med.notified=true;save();chime();try{navigator.vibrate&&navigator.vibrate([180,90,180])}catch(e){}
+    S.med.notified=true;save();chime();vib([180,90,180]);
     toast('Daily goal reached. Tap Save to log it.');
   }
   if(S.med.start)raf=requestAnimationFrame(medTick);
 }
 
+/* ---------- note drafts ---------- */
+const DRAFTS=KEY+'.drafts';
+let drafts={};try{const o=JSON.parse(localStorage.getItem(DRAFTS)||'{}');if(o&&typeof o==='object')drafts=o}catch(e){}
+function setDraft(k,v){if(v)drafts[k]=String(v).slice(0,2000);else delete drafts[k];try{localStorage.setItem(DRAFTS,JSON.stringify(drafts))}catch(e){}}
+function keepDraft(){
+  const nt=root.querySelector('#nt');if(!nt||!nt.dataset.nk)return;
+  const k=nt.dataset.nk,s=ui.sheet;if(s&&s.t==='note'&&s.id+'|'+s.date===k)return;
+  const v=nt.value.trim().slice(0,1000),saved=S.notes[k]||'';
+  if(v&&v!==saved){if(drafts[k]!==nt.value){setDraft(k,nt.value);toast('Note kept as a draft')}}else if(drafts[k]!=null)setDraft(k,'');
+}
+
 /* ---------- UI state & navigation ---------- */
 const ui={view:'home',id:null,date:today(),filter:S.settings.filter,cat:S.settings.cat||null,sheet:null,sheetH:false,skipPop:0,afterPop:null,form:null,cal:null,update:false,later:false,newVer:null,stamp:today(),lk:null,pending:null,persisted:null,scrolls:{},supp:0};
-function nav(view,id){const st={view,id:id||null};ui.view=view;ui.id=id||null;ui.sheet=null;if(ui.sheetH){ui.sheetH=false;history.replaceState(st,'')}else history.pushState(st,'');render()}
-function openSheet(sh){ui.sheet=sh;if(!ui.sheetH){ui.sheetH=true;try{history.pushState(Object.assign({},history.state||{},{sheet:1}),'')}catch(e){}}render()}
+let pendH=[];
+function pushH(st){if(ui.skipPop>0){pendH.push(st);return}try{history.pushState(typeof st==='function'?st():st,'')}catch(e){}}
+function flushH(){const a=pendH;pendH=[];a.forEach(st=>{try{history.pushState(typeof st==='function'?st():st,'')}catch(e){}})}
+function nav(view,id){const st={view,id:id||null};ui.view=view;ui.id=id||null;ui.sheet=null;if(ui.sheetH){ui.sheetH=false;history.replaceState(st,'')}else pushH(st);render()}
+function openSheet(sh){ui.sheet=sh;if(!ui.sheetH){ui.sheetH=true;pushH(()=>Object.assign({},history.state||{},{sheet:1}))}render()}
 function closeSheet(extra){
   const had=ui.sheetH;ui.sheet=null;ui.sheetH=false;
   if(had){if(extra)history.go(-(1+extra));else{ui.skipPop++;history.back()}}else if(extra)history.go(-extra);
@@ -772,23 +807,29 @@ function closeSheet(extra){
 }
 function tab(v){
   if(ui.sheetH){ui.sheetH=false;ui.sheet=null;ui.afterPop=()=>tab(v);ui.skipPop++;history.back();return}
-  if(ui.view===v){window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});return}
+  if(ui.view===v){if(v==='home'&&ui.date!==today()){tick();setDate(today())}window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});return}
   ui.sheet=null;
   const st=history.state||{};
   if(!ROOTS.includes(ui.view)){
-    if(v==='home'){ui.view='home';ui.id=null;history.pushState({view:'home'},'');render();return}
+    if(v==='home'){ui.view='home';ui.id=null;pushH({view:'home'});render();return}
     nav(v);return;
   }
   if(v==='home'){if(st.tabTop){history.back();return}ui.view='home';ui.id=null;history.replaceState({view:'home'},'');render();return}
-  if(ui.view==='home')history.pushState({view:v,tabTop:true},'');else history.replaceState({view:v,tabTop:!!st.tabTop},'');
+  if(ui.view==='home')pushH({view:v,tabTop:true});else history.replaceState({view:v,tabTop:!!st.tabTop},'');
   ui.view=v;ui.id=null;render();
 }
 const formDirty=()=>ui.view==='form'&&!!ui.form&&JSON.stringify(ui.form)!==ui.form0;
 window.addEventListener('popstate',e=>{
-  if(ui.skipPop>0){ui.skipPop--;if(ui.afterPop){const f=ui.afterPop;ui.afterPop=null;f()}return}
+  if(ui.skipPop>0){ui.skipPop--;if(!ui.skipPop)flushH();if(ui.afterPop){const f=ui.afterPop;ui.afterPop=null;f()}return}
   if(ui.sheetH){ui.sheetH=false;ui.sheet=null;render();return}
-  if(formDirty()&&!ui.leaving){history.pushState({view:'form',id:ui.id},'');confirmSheet('Discard changes?','Your changes to this habit haven’t been saved.','discard','Discard changes');return}
-  ui.leaving=false;const s=e.state||{view:'home'};ui.view=s.view||'home';ui.id=s.id||null;ui.sheet=null;ui.popNav=true;render();
+  if(formDirty()&&!ui.leaving){pushH({view:'form',id:ui.id});confirmSheet('Discard changes?','Your changes to this habit haven’t been saved.','discard','Discard changes');return}
+  ui.leaving=false;const s=e.state||{view:'home'};ui.view=s.view||'home';ui.id=s.id||null;ui.sheet=null;ui.popNav=true;
+  if(ui.view==='home'){const t=today();
+    if(!s.dayH&&ui.dayH){ui.dayH=false;if(ui.date!==t){ui.dir=t>ui.date?1:-1;ui.date=t}}                     // back from another day: today
+    else if(s.dayH&&ui.date===t){ui.dayH=false;popSilent(1)}                                                // a leftover entry for a day no longer shown
+    else if(!s.dayH&&!ui.dayH&&ui.date!==t){ui.dayH=true;pushH({view:'home',dayH:1})}  // arrived on another day (from the Timeline)
+  }
+  render();
 });
 try{history.replaceState({view:'home',id:null},'')}catch(e){}
 try{const go=new URLSearchParams(location.search).get('go');if(go==='med'){ui.view='med';history.pushState({view:'med',tabTop:true},'')}}catch(e){}
@@ -798,7 +839,23 @@ function toast(msg,action){const t=document.getElementById('toast');
   t.innerHTML=action?`<span>${esc(msg)}</span><button data-act="${action.act}">${esc(action.label)}</button>`:esc(msg);
   t.classList.toggle('act',!!action);t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),action?4500:2400)}
 function hideToast(){clearTimeout(tt);document.getElementById('toast').classList.remove('on')}
-function setDate(x){if(!x||x===ui.date)return;ui.dir=x>ui.date?1:-1;ui.date=x;render()}
+function popSilent(n){if(n>0){ui.skipPop++;history.go(-n)}}
+/* looking at another day adds one history entry, so the back button returns to today before it leaves the app */
+function dayHist(x){
+  const t=today();
+  if(x!==t&&!ui.dayH){ui.dayH=true;pushH({view:'home',dayH:1})}
+  else if(x===t&&ui.dayH){ui.dayH=false;popSilent(1)}
+}
+function setDate(x){if(!x||x===ui.date)return;ui.dir=x>ui.date?1:-1;ui.date=x;if(ui.view==='home'&&!ui.sheetH)dayHist(x);render()}
+function jumpTo(x){
+  if(!ui.sheetH){if(x!==ui.date)tick();setDate(x);return}
+  if(x!==ui.date){tick();ui.dir=x>ui.date?1:-1;ui.date=x}
+  const t=today();ui.sheet=null;ui.sheetH=false;
+  if(x!==t&&!ui.dayH){ui.dayH=true;try{history.replaceState({view:'home',dayH:1},'')}catch(e){}}   // the popup's entry becomes the day's entry
+  else if(x===t&&ui.dayH){ui.dayH=false;popSilent(2)}
+  else popSilent(1);
+  render();
+}
 function firstDay(){const hs=active();return hs.length?hs.map(h=>h.created).sort()[0]:today()}
 const MIN_DAY='2000-01-01',maxDay=()=>addDays(today(),365),inRange=x=>x>=MIN_DAY&&x<=maxDay();
 /* the first day this person used the app (earliest habit or install date) */
@@ -899,7 +956,7 @@ function burst(el){if(REDUCED||!el||!el.animate)return;const b=document.createEl
 function popToday(card){if(REDUCED||!card)return;const t=today(),r=diffDays(startOfWeek(t),t),cell=card.querySelectorAll('.heat i')[r*22+21];
   if(cell&&cell.animate)cell.animate([{transform:'scale(.2)'},{transform:'scale(1.45)',offset:.45},{transform:'none'}],{duration:620,easing:'cubic-bezier(.3,1.4,.5,1)'})}
 function celebrate(el){
-  try{navigator.vibrate&&navigator.vibrate([22,45,22,45,80])}catch(e){}
+  vib([22,45,22,45,80]);
   if(REDUCED)return;
   const W=innerWidth,H=innerHeight,r=el&&el.getBoundingClientRect?el.getBoundingClientRect():null,x=r?r.left+r.width/2:W/2,y=r?r.top+r.height/2:H/3;
   const cv=document.createElement('canvas'),dpr=Math.min(3,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;cv.className='fx';document.body.appendChild(cv);
@@ -991,9 +1048,9 @@ function card(h,d,locked){
     sub=ts?`Done ${clock(ts)}${h.showStreak?` · Streak ${c.streak}`:''}`:h.showStreak?`Streak: ${c.streak} day${c.streak===1?'':'s'}`:esc(h.desc||h.category||'');if(ts)sc=' ok'}
   else{const due=dueOn(h,d);sub=fut?(due?'Coming up':'Not due'):dn?'Done':due?'Missed':'Not due';sc=d<t?(dn?' ok':due?' miss':''):''}
   if(isMed(h)){const s=medDay(d);if(s)sub+=`${sub?' · ':''}${fmtShort(s)} meditated`}
-  return `<div class="hc${dueOn(h,d)||dn?'':' dim'}${dn?' done':''}" style="${shades(h.color)}" data-act="open" data-id="${h.id}" data-k="${h.id}" data-flip="1">
+  return `<div class="hc${dueOn(h,d)||dn?'':' dim'}${dn?' done':''}${S.settings.compact?' cmp':''}" style="${shades(h.color)}" data-act="open" data-id="${h.id}" data-k="${h.id}" data-flip="1">
 <div class="hr"><div class="ico">${esc(h.icon)}</div><div class="mt"><div class="ttl">${esc(h.title)}</div><div class="sub${sc}">${sub}</div></div>
-<button class="rb note${has?' has':''}${fut?' lk':''}" data-act="${fut?'locked':'note'}" data-id="${h.id}" aria-label="Note">${IC.note}</button>${ctrl(h,d,locked)}</div>${heat(h,d)}</div>`;
+<button class="rb note${has?' has':''}${fut?' lk':''}" data-act="${fut?'locked':'note'}" data-id="${h.id}" aria-label="Note">${IC.note}</button>${ctrl(h,d,locked)}</div>${S.settings.compact?'':heat(h,d)}</div>`;
 }
 
 /* ---------- views ---------- */
@@ -1013,17 +1070,18 @@ function vHome(){
     strip+=`<button class="wd${x===d?' sel':''}${x===t?' tdy':''}${x>t?' fut':''}" data-act="day" data-d="${x}" aria-label="${x===t?'Today':dayLabel(x)}"${x===d?' aria-current="date"':''}><div class="wdl">${DN[pd(x).getDay()]}</div><div class="dc">${ring(fr)}<span class="nb">${pd(x).getDate()}</span></div><div class="tdot"></div></button>`;
   }
   const s2=dayStats(d,list),ov=overall(),dt=pd(d),all=s2.total>0&&s2.done>=s2.total;
-  const title=d===t?`Today, <b>${longDate(d)}</b>`:`${DN[dt.getDay()]}, <b>${longDate(d)}</b>`;
+  const rel=d===t?'Today':d===addDays(t,-1)?'Yesterday':d===addDays(t,1)?'Tomorrow':'',yr=!rel&&d.slice(0,4)!==t.slice(0,4)?' '+d.slice(0,4):'';
+  const title=`${rel||DN[dt.getDay()]}, <b>${longDate(d)}${yr}</b>`,when=d===t?'today':rel==='Yesterday'?'yesterday':'on this day';
   if(d!==t)ui.lockMsg=`${d<t?'This day is read-only.':'Future days are read-only.'} Only today can be changed.`;
   const sd=startDay(),pre=d<sd;
   const preMsg=d<APP_CREATED&&sd>=APP_CREATED?`Habit Log didn’t exist yet on ${fullDate(d)}. It was created on ${fullDate(APP_CREATED)}.`:`You hadn’t started using Habit Log yet on ${fullDate(d)}. Your first day was ${fullDate(sd)}.`;
   const status=pre?'Before you started Habit Log':d>t?(s2.total?`${s2.total} habit${s2.total===1?'':'s'} due on this day`:'Nothing due on this day'):!s2.total?(d<first?'You weren’t tracking habits yet on this day':'Nothing was due on this day')
-    :all?`<b>All ${s2.total} done</b> ${d===t?'today. Nice work.':'on this day'}`:`<b><span data-cu="${s2.done}">${s2.done}</span> of ${s2.total}</b> done ${d===t?'today':'on this day'}`;
+    :all?`<b>All ${s2.total} done</b> ${d===t?'today. Nice work.':when}`:`<b><span data-cu="${s2.done}">${s2.done}</span> of ${s2.total}</b> done ${when}`;
   const empty=pre?`${preMsg}<button class="btn" data-act="jfirst">Go to ${longDate(sd)}</button>`:!all0.length?'No active habits.<br>Tap + to add one, or restore one from the Data tab.'
     :!hs.length?'You weren’t tracking habits yet on this day.'
     :ui.filter==='due'&&list.some(h=>dueOn(h,d)||isDone(h,d))?(d===t?'Everything due today is done. Nice work.':'Everything due on this day was done.')
     :'Nothing is due on this day.';
-  return `<div class="hd"><h1 data-act="jump" aria-label="Choose a day"><span class="ttx" data-k="tt${d}">${title}</span>${IC.cdown}</h1><button class="tdbtn${d===t?' off':''}" data-k="tdb" ${d===t?'tabindex="-1" aria-hidden="true"':'data-act="gotoday" aria-label="Go to today"'}>${IC.ret}<span>Today</span></button><button class="ib" data-act="jump" data-k="jmp" aria-label="Go to any day">${IC.today}</button></div>
+  return `<div class="hd"><h1 class="${(rel||'Wed').length+longDate(d).length+yr.length>14?'lng':''}" data-act="jump" aria-label="Choose a day"><span class="ttx" data-k="tt${d}">${title}</span>${IC.cdown}</h1><button class="tdbtn${d===t?' off':''}" data-k="tdb" ${d===t?'tabindex="-1" aria-hidden="true"':'data-act="gotoday" aria-label="Go to today"'}>${IC.ret}<span>Today</span></button><button class="ib jmp${d===t?'':' off'}" data-act="jump" data-k="jmp" aria-label="Go to any day"${d===t?'':' tabindex="-1" aria-hidden="true"'}>${IC.today}</button></div>
 <div class="wkh" data-k="wkh"><div class="wk swp" data-k="wk${ws}"><div class="si${d===t?' at-t':''}" style="--i:${si}" aria-hidden="true"><div class="wdl"></div><div class="dc"><i></i></div></div>${strip}</div></div>
 <div class="fr"><div><label>Filter</label><div class="pl"><button class="${ui.filter==='all'?'on':''}" data-act="filter" data-f="all">All (${list.length})</button><button class="${ui.filter==='due'?'on':''}" data-act="filter" data-f="due">Due (${dueL.length})</button></div></div>
 <div><label style="text-align:right">Habit Score</label><button class="sc" data-act="score">${IC.gauge}<span><span data-cu="${ov.score.toFixed(1)}" data-dec="1">${ov.score.toFixed(1)}</span>%</span></button></div></div>
@@ -1035,20 +1093,24 @@ ${!clockOk()?`<div class="lockbar warn" data-k="clk">${IC.warn}<span>${CLOCK_MSG
 }
 
 function vTimeline(){
-  const ev=[],t=today(),hs=active();
-  hs.forEach(h=>{ev.push({d:h.created,o:0,k:'start',t:`Started “${h.title}”`});if(h.showStreak)calc(h).miles.forEach(m=>ev.push({d:m.date,o:1,k:'mile',t:`${h.title}: ${m.n}-day streak`}))});
-  if(hs.length){
-    const first=hs.map(h=>h.created).sort()[0];
-    for(let d=first;d<=t;d=addDays(d,1)){const s=dayStats(d,hs);if(s.done>0)ev.push({d,o:2,k:'day',t:s.done>=s.total?`Perfect day: all ${s.total} habits done`:`${s.done} of ${s.total} habits done`})}
-  }
-  Object.keys(S.medLog).forEach(d=>{const s=medDay(d);if(s)ev.push({d,o:3,k:'med',t:`Meditated ${fmtDur(s)}`})});
+  const ev=[],t=today(),hs=active(),starts={};
+  const miles={};
+  hs.forEach(h=>{(starts[h.created]=starts[h.created]||[]).push(h.title);if(h.showStreak)calc(h).miles.forEach(m=>(miles[m.date]=miles[m.date]||[]).push({t:h.title,n:m.n}))});
+  Object.keys(miles).forEach(d=>{const a=miles[d],same=a.every(x=>x.n===a[0].n);
+    ev.push({d,o:1,k:'mile',t:a.length===1?`${a[0].t}: ${a[0].n}-day streak`:same?`${a.length} new ${a[0].n}-day streaks`:`Streaks: ${a.map(x=>`${x.t} ${x.n}`).join(', ')}`})});
+  Object.keys(starts).forEach(d=>{const a=starts[d];ev.push({d,o:0,k:'start',t:a.length===1?`Started “${a[0]}”`:a.length===2?`Started “${a[0]}” and “${a[1]}”`:`Started ${a.length} habits`})});
+  const days=new Set(Object.keys(S.medLog));
+  if(hs.length)for(let d=hs.map(h=>h.created).sort()[0];d<=t;d=addDays(d,1))days.add(d);
+  days.forEach(d=>{if(d>t)return;const s=dayStats(d,hs),m=medDay(d);
+    if(s.done>0)ev.push({d,o:2,k:'day',t:s.done>=s.total?`Perfect day: all ${s.total} done`:`${s.done} of ${s.total} done`,m});
+    else if(m)ev.push({d,o:2,k:'med',t:`Meditated ${fmtDur(m)}`});});
   ev.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:b.o-a.o);
   let out='',cm='',first=true;
   ev.slice(0,300).forEach(e=>{
     const dt=pd(e.d),mo=`${MLONG[dt.getMonth()]} ${dt.getFullYear()}`;
     if(mo!==cm){cm=mo;out+=`<h4 class="mo">${mo}</h4>`}
     const icon={start:IC.flag,mile:IC.fire,med:IC.lotus,day:IC.check}[e.k];
-    out+=`<div class="ev${first?' first':''}" data-act="tday" data-d="${e.d}"><div class="dot">${first?IC.check:''}</div><div class="evc">${icon}<span class="tx">${esc(e.t)}</span><small>${dt.getDate()} ${MN[dt.getMonth()]}</small></div></div>`;
+    out+=`<div class="ev${first?' first':''}" data-act="tday" data-d="${e.d}"><div class="dot">${first?IC.check:''}</div><div class="evc">${icon}<span class="tx">${esc(e.t)}</span>${e.m?`<span class="mtag" aria-label="Meditated ${fmtShort(e.m)}">${IC.lotus}${fmtShort(e.m)}</span>`:''}<small>${dt.getDate()} ${MN[dt.getMonth()]}</small></div></div>`;
     first=false;
   });
   return `<div class="top"><h1 class="tt">Timeline</h1></div>
@@ -1180,10 +1242,13 @@ ${CAN_SHARE_FILES?`<button class="row" data-act="sharebk"><span>Send backup<smal
 <h3 class="sect">Habits</h3>
 <button class="row" data-act="order"><span>Rearrange habits<small>Change the order on the Habits tab</small></span>${IC.sort}</button>
 <button class="row" data-act="tdonelast" role="switch" aria-checked="${!!S.settings.doneLast}"><span>Move finished habits down<small>Keep what’s left at the top of the list</small></span><span class="sw${S.settings.doneLast?' on':''}" aria-hidden="true"></span></button>
+<button class="row" data-act="tcompact" role="switch" aria-checked="${!!S.settings.compact}"><span>Compact cards<small>Hide the history grid so all your habits fit on one screen</small></span><span class="sw${S.settings.compact?' on':''}" aria-hidden="true"></span></button>
 <button class="row" data-act="archlist"><span>Archived habits<small>${arch?`${arch} archived. Restore or delete them.`:'Habits you archive appear here'}</small></span>${IC.archive}</button>
 <h3 class="sect">App</h3>
 <button class="row${ui.update?' hl':''}" data-act="${ui.update?'reload':'checkupd'}"><span>${ui.update?'Update now':'Check for updates'}<small>${ui.update?`Version ${esc(ui.newVer||'')} is ready`:'Looks for a newer version of the app'}</small></span>${IC.refresh}</button>
 ${(()=>{const u=readUndo();return u?`<button class="row hl" data-act="undo"><span>Undo last ${u.what}<small>Brings back your data from before it</small></span>${IC.reset}</button>`:''})()}
+${readSnaps().length?`<button class="row" data-act="snaps"><span>Restore an earlier copy<small>Habit Log keeps a copy from each of the last few days</small></span>${IC.reset}</button>`:''}
+<button class="row" data-act="thaptic" role="switch" aria-checked="${S.settings.haptics!==false}"><span>Vibration<small>Small buzzes when you tick habits and change days</small></span><span class="sw${S.settings.haptics!==false?' on':''}" aria-hidden="true"></span></button>
 <section class="blk"><h3>Week starts on</h3><div class="seg">${seg('week',[['1','Monday'],['0','Sunday']],String(st.weekStart))}</div></section>
 <button class="row dg" data-act="reset"><span>Reset everything<small>Deletes all habits, history and meditation time</small></span>${IC.trash}</button>`;
 }
@@ -1222,13 +1287,14 @@ function sheetHtml(){
 <div class="lgd" style="${shades('#4da3ff')}"><span>Less done</span><i style="background:var(--p1)"></i><i style="background:var(--p2)"></i><i style="background:var(--p3)"></i><i style="background:var(--p4)"></i><i style="background:var(--c)"></i><span>All done</span></div>
 <div class="jq"><button class="btn g" data-act="jfirst">First day</button><button class="btn" data-act="jtoday">Today</button></div>`;
   }
+  else if(s.t==='snaps'){const a=readSnaps();b=`<h3>Restore an earlier copy</h3><p>Habit Log saves a copy of your data once a day, the first time you open it. Restoring one replaces your current data, and you can undo it afterwards.</p>${a.map((x,i)=>`<div class="rr"><div class="ttl">${dayLabel(x.day)}<small>Saved at ${clock(x.at)} · ${x.data.habits.filter(h=>!h.archived).length} habits</small></div><button class="mini" data-act="snapuse" data-i="${i}">Restore</button></div>`).join('')}<button class="btn g" data-act="closesheet">Close</button>`}
   else if(s.t==='qa'){const h=byId(s.id);if(h){const list=active(),i=list.indexOf(h),fut=ui.date>today(),hasN=!!S.notes[h.id+'|'+ui.date];
     b=`<div class="qh"><div class="ico" style="--c:${h.color}">${esc(h.icon)}</div><h3>${esc(h.title)}</h3></div>${fut?'':`<button class="qi" data-act="qnote">${IC.note}<span>${hasN?'Edit note':'Add a note'}<small>${dayLabel(ui.date)}</small></span></button>`}<button class="qi" data-act="qopen">${IC.gauge}<span>Stats and history</span></button><button class="qi" data-act="qedit">${IC.edit}<span>Edit habit</span></button>${i>0?`<button class="qi" data-act="qmove" data-s="-1">${IC.cup}<span>Move up</span></button>`:''}${i>=0&&i<list.length-1?`<button class="qi" data-act="qmove" data-s="1">${IC.cdown}<span>Move down</span></button>`:''}<button class="qi" data-act="qarch">${IC.archive}<span>Archive<small>Hide it and keep its history</small></span></button>`}}
-  else if(s.t==='note'){const h=byId(s.id);b=`<h3>Note for ${esc(h.title)}, ${dayLabel(s.date)}</h3><textarea class="inp" id="nt" style="margin-top:0" placeholder="Write a note for ${longDate(s.date)}">${esc(S.notes[s.id+'|'+s.date]||'')}</textarea><button class="btn" data-act="savenote">Save note</button>`}
+  else if(s.t==='note'){const h=byId(s.id),k=s.id+'|'+s.date,dr=drafts[k];b=`<h3>Note for ${esc(h.title)}, ${dayLabel(s.date)}</h3>${dr!=null?'<p class="drf">Unsaved draft. Tap Save to keep it.</p>':''}<textarea class="inp" id="nt" data-nk="${esc(k)}" style="margin-top:0" placeholder="Write a note for ${longDate(s.date)}">${esc(dr!=null?dr:(S.notes[k]||''))}</textarea><button class="btn" data-act="savenote">Save note</button>`}
   else if(s.t==='info')b=`<h3>What is Habit Score?</h3><p>Habit Score measures how strong a habit is. It weighs <b>recent days more</b>, so it grows fast at first, drops when you miss days, and recovers when you get back on track.</p><p><b>Success rate</b> is simpler: the share of due days you completed. Do a habit on 5 of 10 days and your success rate is 50%.</p><p>A <b>perfect day</b> is a day where every habit that was due got done.</p><button class="btn g" data-act="closesheet">Got it</button>`;
   else if(s.t==='confirm')b=`<h3>${esc(s.title)}</h3><p>${esc(s.msg)}</p><button class="btn d" data-act="${s.yes}">${esc(s.label)}</button><button class="btn g" data-act="closesheet">Cancel</button>`;
   else if(s.t==='spset'){const u=S.spotify.url;b=`<h3>Your meditation playlist</h3><p>In Spotify, open the playlist, tap <b>Share</b>, then <b>Copy link</b>, and paste it here.</p><input class="inp" id="spu" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/…" value="${esc(u)}"><button class="btn" data-act="spsave">Save playlist</button>${u?'<button class="btn g" data-act="spclear">Remove playlist</button>':''}`}
-  else if(s.t==='order'){const hs=active();b=`<h3>Rearrange habits</h3>${hs.map((h,i)=>`<div class="rr" style="--c:${h.color}" data-k="o${h.id}" data-flip="1"><div class="ico">${esc(h.icon)}</div><div class="ttl">${esc(h.title)}</div><button class="xb" data-act="mv" data-id="${h.id}" data-s="-1" aria-label="Move up"${i?'':' style="visibility:hidden"'}>${IC.cup}</button><button class="xb" data-act="mv" data-id="${h.id}" data-s="1" aria-label="Move down"${i<hs.length-1?'':' style="visibility:hidden"'}>${IC.cdown}</button></div>`).join('')}<button class="btn g" data-act="closesheet">Done</button>`}
+  else if(s.t==='order'){const hs=active();b=`<h3>Rearrange habits</h3><p class="hint0">Hold the dots and drag a habit to move it.</p><div class="ordl">${hs.map(h=>`<div class="rr" style="--c:${h.color}" data-k="o${h.id}" data-id="${h.id}"><div class="ico">${esc(h.icon)}</div><div class="ttl">${esc(h.title)}</div><span class="grip" aria-hidden="true">${IC.grip}</span></div>`).join('')}</div><button class="btn g" data-act="closesheet">Done</button>`}
   else if(s.t==='arch'){const hs=S.habits.filter(h=>h.archived);b=`<h3>Archived habits</h3>${hs.length?hs.map(h=>`<div class="rr" style="--c:${h.color}" data-k="a${h.id}" data-flip="1"><div class="ico">${esc(h.icon)}</div><div class="ttl">${esc(h.title)}</div><button class="mini" data-act="restore" data-id="${h.id}">Restore</button><button class="mini d" data-act="adel" data-id="${h.id}">Delete</button></div>`).join(''):'<p>No archived habits. Archive one from its page to hide it without losing its history.</p>'}<button class="btn g" data-act="closesheet">Done</button>`}
   return `<div class="ov" data-act="closesheet" data-k="sheet-${s.t}"><div class="sh" data-act="noop" role="dialog" aria-modal="true"><span class="grab" aria-hidden="true"></span>${b}</div></div>`;
 }
@@ -1238,13 +1304,17 @@ function modalHtml(){
 
 const root=document.getElementById('app');
 function render(){
+  if(ro){ui.deferRender=true;return}   // never redraw under a finger that is dragging a habit
   memo.clear();
   if(ui.view==='form'&&!ui.form)ui.view='home';
+  keepDraft();
   const V={home:vHome,timeline:vTimeline,score:vScore,detail:vDetail,form:vForm,med:vMed,data:vData}[ui.view]||vHome;
-  const body=V();
+  let body;
+  try{body=V()}catch(err){console.error(err);body=`<div class="empty">Something went wrong showing this screen.<br>Your data is safe.<button class="btn" data-act="tab" data-v="home">Go to Habits</button><button class="btn g" data-act="reload">Reload the app</button></div>`}
   const key=ui.view+(ui.view==='detail'||ui.view==='form'?':'+(ui.id||'new'):'');
-  const viewChanged=ui.lk!==key,showModal=ui.update&&!ui.later;
-  const html=`<div class="ban${ui.update&&ui.later?'':' hide'}" data-k="ban">Update ready<button data-act="reload">Update now</button></div>`
+  const meditating=!!S.med.start,viewChanged=ui.lk!==key,showModal=ui.update&&!ui.later&&!meditating;   // never interrupt a meditation
+  const html=`<div class="ban${ui.update&&ui.later&&!meditating?'':' hide'}" data-k="ban">Update ready<button data-act="reload">Update now</button></div>`
+    +(saveErr?`<div class="ban err" data-k="serr">Changes aren’t being saved. Your phone’s storage may be full. Export a backup from the Data tab.</div>`:'')
     +`<main class="view" data-k="${esc(key)}">${body}</main>`
     +(ROOTS.includes(ui.view)?navHtml():'')+pillHtml()
     +(ui.sheet?sheetHtml():'')
@@ -1279,12 +1349,44 @@ function render(){
 
 /* ---------- gestures: swipe the list to change day, long-press a habit, drag a popup down to close ---------- */
 function dayTarget(n){const nd=addDays(ui.date,n);return inRange(nd)?nd:null}
-let dg=null,lp=null,sd=null;
+let dg=null,lp=null,sd=null,jg=null,ro=null;
+function roStart(e,row){
+  const list=row.parentNode,rows=[...list.children],i=rows.indexOf(row),sh=row.closest('.sh');
+  const r0=rows[0].getBoundingClientRect(),r1=rows[1]?rows[1].getBoundingClientRect():null;
+  ro={id:e.pointerId,row,rows,from:i,to:i,y0:e.clientY,s0:sh.scrollTop,sh,pitch:(r1?r1.top-r0.top:r0.height)||56,last:e.clientY,raf:0};
+  row.classList.add('lift');rows.forEach(x=>{if(x!==row)x.style.transition='transform .24s cubic-bezier(.2,.8,.2,1)'});
+  vib(10);ro.raf=requestAnimationFrame(roEdge);
+}
+function roMove(y){
+  const g=ro;g.last=y;const dy=y-g.y0+(g.sh.scrollTop-g.s0),n=g.rows.length;
+  const to=Math.max(0,Math.min(n-1,Math.round(g.from+dy/g.pitch)));
+  g.row.style.transform=`translate3d(0,${dy.toFixed(1)}px,0) scale(1.02)`;
+  if(to!==g.to){g.to=to;vib(4);g.rows.forEach((x,i)=>{if(x===g.row)return;const off=g.from<i&&i<=to?-g.pitch:to<=i&&i<g.from?g.pitch:0;x.style.transform=off?`translate3d(0,${off}px,0)`:''})}
+}
+function roEdge(){   // holding a habit near the popup's top or bottom edge scrolls it
+  const g=ro;if(!g)return;const r=g.sh.getBoundingClientRect(),y=g.last;let v=0;
+  if(y<r.top+56)v=-Math.ceil((r.top+56-y)/5);else if(y>r.bottom-56)v=Math.ceil((y-(r.bottom-56))/5);
+  if(v){const b0=g.sh.scrollTop;g.sh.scrollTop+=v;if(g.sh.scrollTop!==b0)roMove(y)}
+  g.raf=requestAnimationFrame(roEdge);
+}
+function roEnd(cancel){
+  const g=ro;ro=null;cancelAnimationFrame(g.raf);ui.supp=performance.now();
+  const rel=g.row.getBoundingClientRect().top,id=g.row.getAttribute('data-id');
+  g.rows.forEach(x=>{x.style.transition='none';x.style.transform=''});g.row.classList.remove('lift');
+  if(!cancel&&g.to!==g.from){const list=active(),m=list.splice(g.from,1)[0];list.splice(g.to,0,m);S.habits=[...list,...S.habits.filter(h=>h.archived)];save();render()}
+  else g.rows.forEach(x=>{x.style.transition=''});
+  const nr=root.querySelector(`.ordl [data-id="${id}"]`);
+  if(nr&&nr.animate&&!REDUCED){const dy=rel-nr.getBoundingClientRect().top;if(Math.abs(dy)>1)nr.animate([{transform:`translate3d(0,${dy}px,0) scale(1.02)`},{transform:'none'}],{duration:420,easing:SPRING})}
+  if(ui.deferRender){ui.deferRender=false;render()}
+}
 function lpCancel(){if(lp){clearTimeout(lp.tm);lp=null}}
 document.addEventListener('pointerdown',e=>{
   if(!e.isPrimary||(e.pointerType==='mouse'&&e.button))return;
+  const gr=e.target.closest&&e.target.closest('.grip');
+  if(gr&&ui.sheet&&ui.sheet.t==='order'&&!ro){roStart(e,gr.closest('.rr'));return}
   const sh=e.target.closest&&e.target.closest('.sh');
   if(sh){ // drag down from the handle or the title area of a popup
+    if(e.target.closest('.jg'))jg={x:e.clientX,y:e.clientY,id:e.pointerId};
     const top=sh.getBoundingClientRect().top;if(e.clientY-top<64&&sh.scrollTop<=0&&!e.target.closest('input,textarea'))sd={y:e.clientY,t:e.timeStamp,id:e.pointerId,sh,on:false,last:[]};
     return;
   }
@@ -1293,11 +1395,12 @@ document.addEventListener('pointerdown',e=>{
   const c=e.target.closest('.hc');
   if(c&&!e.target.closest('button,.cnt')){
     lpCancel();const id=c.getAttribute('data-id');
-    lp={x:e.clientX,y:e.clientY,tm:setTimeout(()=>{lp=null;dg=null;ui.supp=performance.now();try{navigator.vibrate&&navigator.vibrate(18)}catch(_){}
+    lp={x:e.clientX,y:e.clientY,tm:setTimeout(()=>{lp=null;dg=null;ui.supp=performance.now();vib(18);
       if(c.animate&&!REDUCED)c.animate([{transform:'scale(.965)'},{transform:'none'}],{duration:520,easing:SPRING});openSheet({t:'qa',id})},460)};
   }
 },{passive:true});
 document.addEventListener('pointermove',e=>{
+  if(ro&&e.pointerId===ro.id){roMove(e.clientY);return}
   if(lp&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>9)lpCancel();
   if(sd&&e.pointerId===sd.id){
     const dy=e.clientY-sd.y;
@@ -1319,6 +1422,9 @@ document.addEventListener('pointermove',e=>{
 function vel(L){if(L.length<2)return 0;const a=L[0],b=L[L.length-1];return (b[1]-a[1])/Math.max(1,b[0]-a[0])}
 function gestureEnd(e,cancel){
   lpCancel();
+  if(ro&&e.pointerId===ro.id){roEnd(cancel);return}
+  if(jg&&e.pointerId===jg.id){const g=jg;jg=null;const dx=e.clientX-g.x,dy=e.clientY-g.y;
+    if(!cancel&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4&&ui.sheet&&ui.sheet.t==='jump'){ui.supp=performance.now();act('jm',{s:dx<0?'1':'-1'})}}
   if(sd&&e.pointerId===sd.id){
     const g=sd;sd=null;if(!g.on)return;ui.supp=performance.now();
     const dy=Math.max(0,e.clientY-g.y),v=vel(g.last);
@@ -1395,12 +1501,22 @@ function reload(){
   const go=()=>location.reload();
   try{if(window.caches)caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).then(go,go);else go()}catch(e){go()}
 }
-function buzz(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
+function buzz(){vib(12)}
 function popEl(sel){const b=document.querySelector(sel);if(!b)return;b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');setTimeout(()=>b.classList.remove('pop'),450)}
+const SNAP=KEY+'.snaps';
+function readSnaps(){try{const a=JSON.parse(localStorage.getItem(SNAP)||'[]');return Array.isArray(a)?a.filter(x=>x&&reDate.test(x.day)&&x.data&&Array.isArray(x.data.habits)):[]}catch(e){return []}}
+function dailySnap(){
+  const t=today(),a=readSnaps();if(a.some(x=>x.day===t)||!hasData())return;
+  a.unshift({day:t,at:Date.now(),data:JSON.parse(JSON.stringify(S))});while(a.length>3)a.pop();
+  for(;;){try{localStorage.setItem(SNAP,JSON.stringify(a));break}catch(e){if(a.length<=1)break;a.pop()}}
+}
 function keepUndo(what){try{localStorage.setItem(KEY+'.undo',JSON.stringify({at:Date.now(),what,data:S}))}catch(e){}}
 function readUndo(){try{const u=JSON.parse(localStorage.getItem(KEY+'.undo')||'null');return u&&u.data&&Array.isArray(u.data.habits)?u:null}catch(e){return null}}
 function confirmSheet(title,msg,yes,label){openSheet({t:'confirm',title,msg,yes,label})}
-function deleteHabit(id){S.habits=S.habits.filter(x=>x.id!==id);delete S.logs[id];[S.notes,S.done].forEach(o=>Object.keys(o).forEach(k=>{if(k.startsWith(id+'|'))delete o[k]}));if(S.settings.medHabit===id)S.settings.medHabit=null;save()}
+function snapHabit(id){const h=byId(id);if(!h)return null;const pick=o=>Object.fromEntries(Object.entries(o).filter(([k])=>k.startsWith(id+'|')));
+  return {h:JSON.parse(JSON.stringify(h)),i:S.habits.indexOf(h),logs:JSON.parse(JSON.stringify(S.logs[id]||{})),notes:pick(S.notes),done:pick(S.done),med:S.settings.medHabit===id}}
+function restoreHabit(u){if(!u||byId(u.h.id))return;S.habits.splice(Math.min(u.i,S.habits.length),0,u.h);S.logs[u.h.id]=u.logs;Object.assign(S.notes,u.notes);Object.assign(S.done,u.done);if(u.med)S.settings.medHabit=u.h.id;save()}
+function deleteHabit(id){Object.keys(drafts).forEach(k=>{if(k.startsWith(id+'|'))setDraft(k,'')});S.habits=S.habits.filter(x=>x.id!==id);delete S.logs[id];[S.notes,S.done].forEach(o=>Object.keys(o).forEach(k=>{if(k.startsWith(id+'|'))delete o[k]}));if(S.settings.medHabit===id)S.settings.medHabit=null;save()}
 function medSave(force){
   if(!clockOk()){toast(CLOCK_MSG);return}
   const secs=Math.round(medElapsed()/1000);if(secs<1){toast('Start the timer first');return}
@@ -1427,7 +1543,7 @@ function afterTick(h,r){
     else if(h.showStreak&&st>=3&&MILES.includes(st))toast(`${h.title}: ${st}-day streak`);
   }else if(r.was&&!r.now){ui.undoLog={id:h.id,d:r.d,v:r.prev,ts:r.prevTs};toast(`${h.title} unticked`,{label:'Undo',act:'tundo'})}
 }
-const tick=()=>{try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}};
+const tick=()=>vib(6);
 function afterDayChange(){if(medStale())toast("Yesterday's unsaved timer was cleared");}
 
 function act(a,d){
@@ -1441,8 +1557,7 @@ function act(a,d){
     case 'pickdate':case 'jpick':pickDate();return;
     case 'jump':ui.jm={y:+ui.date.slice(0,4),m:+ui.date.slice(5,7)-1};ui.jdir=0;openSheet({t:'jump'});return;
     case 'jm':{let {y,m}=ui.jm;const st=+d.s;m+=st;if(m<0){m=11;y--}if(m>11){m=0;y++}const mk=`${y}-${pad(m+1)}`;if(mk<MIN_DAY.slice(0,7)||mk>maxDay().slice(0,7))return;ui.jm={y,m};ui.jdir=st;tick();render();return}
-    case 'jumpto':case 'jfirst':case 'jtoday':{const x=a==='jfirst'?startDay():a==='jtoday'?today():d.d;if(!reDate.test(x||'')||!inRange(x))return;
-      if(x!==ui.date){tick();ui.dir=x>ui.date?1:-1;ui.date=x}if(ui.sheetH)closeSheet();else render();return}
+    case 'jumpto':case 'jfirst':case 'jtoday':{const x=a==='jfirst'?startDay():a==='jtoday'?today():d.d;if(!reDate.test(x||'')||!inRange(x))return;jumpTo(x);return}
     case 'filter':ui.filter=S.settings.filter=d.f==='due'?'due':'all';save();render();return;
     case 'cat':ui.cat=d.c||null;S.settings.cat=ui.cat||'';save();render();return;
     case 'score':nav('score');return;
@@ -1454,8 +1569,8 @@ function act(a,d){
       const r=logChange(h,date,isDone(h,date)?null:1);buzz();render();if(r.now)popEl(`[data-act="toggle"][data-id="${h.id}"]`);afterTick(h,r);return}
     case 'inc':{if(!h||!canLog(date))return;const r=logChange(h,date,Math.min(99999,(logOf(h,date)||0)+1));buzz();render();if(r.now&&!r.was)popEl(`[data-k="${h.id}"] .cnt`);afterTick(h,r);return}
     case 'dec':{if(!h||!canLog(date))return;const r=logChange(h,date,Math.max(0,(logOf(h,date)||0)-1));render();afterTick(h,r);return}
-    case 'cntset':if(!h||!canLog(date))return;openSheet({t:'cnt',id:d.id,date});setTimeout(()=>{const n=document.getElementById('cntv');if(n){n.focus();n.select()}},380);return;
-    case 'cntsave':{const s=ui.sheet,hh=s&&byId(s.id);if(!hh||!canLog(s.date))return;const v=Math.max(0,Math.min(99999,parseInt(document.getElementById('cntv').value,10)||0));
+    case 'cntset':if(!h||!canLog(date))return;openSheet({t:'cnt',id:d.id,date});setTimeout(()=>{const n=root.querySelector('#cntv');if(n){n.focus();n.select()}},380);return;
+    case 'cntsave':{const s=ui.sheet,hh=s&&byId(s.id);if(!hh||!canLog(s.date))return;const v=Math.max(0,Math.min(99999,parseInt(root.querySelector('#cntv').value,10)||0));
       const r=logChange(hh,s.date,v);closeSheet();afterTick(hh,r);return}
     case 'tundo':{const u=ui.undoLog;ui.undoLog=null;hideToast();if(!u)return;const hh=byId(u.id);if(!hh||!canLog(u.d))return;
       setLog(hh,u.d,u.v);if(u.ts)S.done[u.id+'|'+u.d]=u.ts;save();render();return}
@@ -1463,8 +1578,8 @@ function act(a,d){
     case 'cl':{const s=ui.sheet,hh=s&&byId(s.id);if(!hh||!canLog(s.date))return;const c0=Array.isArray(logOf(hh,s.date))?logOf(hh,s.date).slice():[],i=+d.i,k=c0.indexOf(i);
       if(k>=0)c0.splice(k,1);else c0.push(i);const r=logChange(hh,s.date,c0);buzz();render();if(r.now&&!r.was){closeSheet();afterTick(hh,r)}return}
     case 'clall':{const s=ui.sheet,hh=s&&byId(s.id);if(!hh||!canLog(s.date))return;const r=logChange(hh,s.date,rule(hh,s.date).items.map((_,i)=>i));buzz();closeSheet();afterTick(hh,r);return}
-    case 'note':if(date>today())return;openSheet({t:'note',id:d.id,date});setTimeout(()=>{const n=document.getElementById('nt');if(n)n.focus()},350);return;
-    case 'savenote':{const s=ui.sheet;if(!s||s.date>today())return;const v=document.getElementById('nt').value.trim().slice(0,1000),k=s.id+'|'+s.date;if(v)S.notes[k]=v;else delete S.notes[k];save();toast(v?'Note saved':'Note removed');closeSheet();return}
+    case 'note':if(date>today())return;openSheet({t:'note',id:d.id,date});setTimeout(()=>{const n=root.querySelector('#nt');if(n)n.focus()},350);return;
+    case 'savenote':{const s=ui.sheet;if(!s||s.date>today())return;const v=root.querySelector('#nt').value.trim().slice(0,1000),k=s.id+'|'+s.date;if(v)S.notes[k]=v;else delete S.notes[k];save();toast(v?'Note saved':'Note removed');closeSheet();return}
     case 'closesheet':closeSheet();return;
     case 'info':openSheet({t:'info'});return;
     case 'calprev':{let {y,m}=ui.cal;m--;if(m<0){m=11;y--}ui.cal={y,m};render();return}
@@ -1474,13 +1589,14 @@ function act(a,d){
     case 'discard':if(ui.view!=='form'){closeSheet();return}ui.leaving=true;closeSheet(1);return;
     case 'arch':{const hh=byId(ui.id);if(!hh)return;hh.archived=true;save();toast('Archived. Restore it from the Data tab.');history.back();return}
     case 'restore':if(h){h.archived=false;save();toast(`${h.title} is back on your list`);render()}return;
-    case 'del':confirmSheet('Delete this habit?','All of its history and notes will be removed. This cannot be undone. Archive it instead to keep the history.','delyes','Delete habit');return;
-    case 'delyes':deleteHabit(ui.id);toast('Habit deleted');closeSheet(1);return;
-    case 'adel':ui.pending=d.id;confirmSheet('Delete this habit?','All of its history and notes will be removed. This cannot be undone.','adelyes','Delete habit');return;
-    case 'adelyes':if(ui.pending)deleteHabit(ui.pending);ui.pending=null;ui.sheet={t:'arch'};toast('Habit deleted');render();return;
+    case 'del':confirmSheet('Delete this habit?','All of its history and notes will be removed. This cannot be undone. You can undo this right after. Archive it instead to keep it out of the way.','delyes','Delete habit');return;
+    case 'delyes':{const u=snapHabit(ui.id);deleteHabit(ui.id);ui.undoDel=u;closeSheet(1);if(u)toast(`${u.h.title} deleted`,{label:'Undo',act:'undel'});return}
+    case 'adel':ui.pending=d.id;confirmSheet('Delete this habit?','All of its history and notes will be removed. You can undo this right after.','adelyes','Delete habit');return;
+    case 'adelyes':{const u=ui.pending?snapHabit(ui.pending):null;if(ui.pending)deleteHabit(ui.pending);ui.pending=null;ui.undoDel=u;ui.sheet={t:'arch'};render();if(u)toast(`${u.h.title} deleted`,{label:'Undo',act:'undel'});return}
+    case 'undel':{const u=ui.undoDel;ui.undoDel=null;hideToast();if(u){restoreHabit(u);toast(`${u.h.title} is back`);render()}return}
     case 'order':openSheet({t:'order'});return;
     case 'archlist':openSheet({t:'arch'});return;
-    case 'qnote':{const s=ui.sheet;if(!s)return;ui.sheet={t:'note',id:s.id,date:ui.date};render();setTimeout(()=>{const n=document.getElementById('nt');if(n)n.focus()},380);return}
+    case 'qnote':{const s=ui.sheet;if(!s)return;ui.sheet={t:'note',id:s.id,date:ui.date};render();setTimeout(()=>{const n=root.querySelector('#nt');if(n)n.focus()},380);return}
     case 'qopen':{const s=ui.sheet;if(!s)return;ui.cal=null;nav('detail',s.id);return}
     case 'qedit':{const s=ui.sheet,hh=s&&byId(s.id);if(!hh)return;ui.form=formFrom(hh);ui.form0=JSON.stringify(ui.form);nav('form',hh.id);return}
     case 'qmove':{const s=ui.sheet;if(!s)return;act('mv',{id:s.id,s:d.s});return}
@@ -1489,9 +1605,11 @@ function act(a,d){
     case 'dnote':if(!d.d||d.d>today())return;openSheet({t:'note',id:ui.id,date:d.d});return;
     case 'mtoggle':S.settings.timeLeft=!S.settings.timeLeft;save();lastSec=-1;render();return;
     case 'tday':{const x=d.d;if(!reDate.test(x||'')||x>today())return;ui.dir=x>ui.date?1:-1;ui.date=x;ui.filter=S.settings.filter='all';save();tab('home');return}
-    case 'piuse':{const v=(document.getElementById('emo')||{}).value||'';let g=v.trim();try{if(window.Intl&&Intl.Segmenter)g=[...new Intl.Segmenter().segment(g)].map(x=>x.segment)[0]||''}catch(e){g=[...g][0]||''}
+    case 'piuse':{const v=(root.querySelector('#emo')||{}).value||'';let g=v.trim();try{if(window.Intl&&Intl.Segmenter)g=[...new Intl.Segmenter().segment(g)].map(x=>x.segment)[0]||''}catch(e){g=[...g][0]||''}
       if(!g||!/\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(g)){toast('Type an emoji, like 🧘 or 📚');return}ui.form.icon=g;closeSheet();return}
     case 'tdonelast':S.settings.doneLast=!S.settings.doneLast;save();render();return;
+    case 'tcompact':S.settings.compact=!S.settings.compact;save();render();return;
+    case 'thaptic':S.settings.haptics=S.settings.haptics===false;save();if(S.settings.haptics)vib(12);render();return;
     case 'mv':{const list=active(),i=list.findIndex(x=>x.id===d.id),j=i+(+d.s);if(i<0||j<0||j>=list.length)return;
       const a1=S.habits.indexOf(list[i]),b1=S.habits.indexOf(list[j]);[S.habits[a1],S.habits[b1]]=[S.habits[b1],S.habits[a1]];save();render();return}
     /* form */
@@ -1519,8 +1637,8 @@ function act(a,d){
       save();buzz();render();return}
     case 'medReset':{const el=medElapsed();if(el>=60000){confirmSheet('Reset the timer?',`You'll lose ${fmtDur(el/1000)} that hasn't been saved.`,'medResetYes','Reset timer');return}medClear();render();return}
     case 'medResetYes':medClear();closeSheet();return;
-    case 'spset':openSheet({t:'spset'});setTimeout(()=>{const n=document.getElementById('spu');if(n)n.focus()},350);return;
-    case 'spsave':{const v=cleanSpotify(document.getElementById('spu').value);if(!v){toast('That doesn’t look like a Spotify link');return}S.spotify.url=v;save();toast('Playlist saved');closeSheet();return}
+    case 'spset':openSheet({t:'spset'});setTimeout(()=>{const n=root.querySelector('#spu');if(n)n.focus()},350);return;
+    case 'spsave':{const v=cleanSpotify(root.querySelector('#spu').value);if(!v){toast('That doesn’t look like a Spotify link');return}S.spotify.url=v;save();toast('Playlist saved');closeSheet();return}
     case 'spclear':S.spotify.url='';save();toast('Playlist removed');closeSheet();return;
     case 'medSave':medSave(false);return;
     case 'medSaveYes':medSave(true);return;
@@ -1533,7 +1651,10 @@ function act(a,d){
     case 'import':document.getElementById('file').click();return;
     case 'importyes':{if(ui.pending&&typeof ui.pending==='object'){keepUndo('import');wakeOff();const keep=S.settings.maxSeen;S=sanitize(ui.pending);S.settings.maxSeen=Math.max(keep||0,Math.min(S.settings.maxSeen||0,Date.now()));ui.pending=null;save();ui.sheet=null;ui.date=today();ui.filter=S.settings.filter;ui.cat=S.settings.cat||null;toast('Backup imported');tab('home')}return}
     case 'checkupd':checkUpdate(true);return;
-    case 'undo':{const u=readUndo();if(!u)return;confirmSheet(u.what==='import'?'Undo the import?':'Undo the reset?',`This brings back your data from ${dayLabel(ds(new Date(u.at))).toLowerCase()} at ${clock(u.at)}, before the ${u.what}.`,'undoyes','Bring it back');return}
+    case 'undo':{const u=readUndo();if(!u)return;confirmSheet({import:'Undo the import?',reset:'Undo the reset?',restore:'Undo the restore?'}[u.what]||'Undo?',`This brings back your data from ${dayLabel(ds(new Date(u.at))).toLowerCase()} at ${clock(u.at)}, before the ${u.what}.`,'undoyes','Bring it back');return}
+    case 'snaps':openSheet({t:'snaps'});return;
+    case 'snapuse':{const x=readSnaps()[+d.i];if(!x)return;ui.pending={snap:x};ui.sheet={t:'confirm',title:'Restore this copy?',msg:`Your data goes back to how it was on ${dayLabel(x.day).toLowerCase()} at ${clock(x.at)}. Anything you logged after that is replaced. You can undo this from the Data tab.`,yes:'snapyes',label:'Restore'};render();return}
+    case 'snapyes':{const x=ui.pending&&ui.pending.snap;ui.pending=null;if(!x)return;keepUndo('restore');wakeOff();const keep=S.settings.maxSeen;S=sanitize(x.data);S.settings.maxSeen=keep;save();ui.date=today();ui.filter=S.settings.filter;ui.cat=S.settings.cat||null;toast('Earlier copy restored');tab('home');return}
     case 'undoyes':{const u=readUndo();if(!u)return;const keep=S.settings.maxSeen;S=sanitize(u.data);S.settings.maxSeen=keep;save();try{localStorage.removeItem(KEY+'.undo')}catch(e){}ui.sheet=null;ui.date=today();ui.filter=S.settings.filter;ui.cat=S.settings.cat||null;toast('Your data is back');tab('home');return}
     case 'reset':confirmSheet('Reset everything?','This deletes all habits, history, notes and meditation time on this phone. Export a backup first if you want to keep them.','resetyes','Delete everything');return;
     case 'resetyes':{keepUndo('reset');wakeOff();const keep=S.settings.maxSeen;S=sanitize(seedRaw());S.settings.maxSeen=keep;save();ui.sheet=null;ui.date=today();ui.filter=S.settings.filter;ui.cat=S.settings.cat||null;toast('Everything was reset');tab('home');return}
@@ -1543,7 +1664,7 @@ function act(a,d){
 }
 document.addEventListener('click',e=>{if(ui.supp&&performance.now()-ui.supp<450){ui.supp=0;e.preventDefault();e.stopPropagation();return}const el=e.target.closest('[data-act]');if(el)act(el.dataset.act,el.dataset)});
 document.addEventListener('input',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f&&ui.form&&f in ui.form)ui.form[f]=e.target.value});
-document.getElementById('dp').addEventListener('change',e=>{let v=e.target.value;if(!reDate.test(v))return;const hi=maxDay();v=v<MIN_DAY?MIN_DAY:v>hi?hi:v;if(ui.sheet&&ui.sheet.t==='jump'){if(v!==ui.date){ui.dir=v>ui.date?1:-1;ui.date=v;tick()}closeSheet()}else{tick();setDate(v)}});
+document.getElementById('dp').addEventListener('change',e=>{let v=e.target.value;if(!reDate.test(v))return;const hi=maxDay();v=v<MIN_DAY?MIN_DAY:v>hi?hi:v;if(ui.sheet&&ui.sheet.t==='jump')jumpTo(v);else{if(v!==ui.date)tick();setDate(v)}});
 document.getElementById('file').addEventListener('change',e=>{
   const file=e.target.files[0];e.target.value='';if(!file)return;
   if(file.size>5e6){toast('That file is too large to be a Habit Log backup');return}
@@ -1558,15 +1679,24 @@ document.getElementById('file').addEventListener('change',e=>{
   r.readAsText(file);
 });
 function dayCheck(){if(ui.stamp!==today()){const old=ui.stamp;ui.stamp=today();if(ui.date===old)ui.date=today();afterDayChange();return true}return false}
+window.addEventListener('storage',e=>{
+  if(e.key!==KEY||!e.newValue)return;
+  try{const o=JSON.parse(e.newValue);if(o&&Array.isArray(o.habits)){S=sanitize(o);memo.clear();dataVer++;render()}}catch(_){}
+});
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState!=='visible')return;
-  dayCheck();if(S.med.start)wakeOn();
+  if(document.visibilityState!=='visible'){ui.hiddenAt=Date.now();return}
+  dayCheck();dailySnap();if(S.med.start)wakeOn();
+  const away=ui.hiddenAt&&Date.now()-ui.hiddenAt>AWAY_MS;ui.hiddenAt=0;
+  if(away&&ui.view==='home'&&!ui.sheet&&ui.date!==today())setDate(today());
   checkUpdate(false);render();
 });
 setInterval(()=>{if(dayCheck())render()},30000);
 setInterval(()=>{const e=document.getElementById('tpt');if(e&&S.med.start)e.textContent=fmtClock(Math.floor(medElapsed()/1000))},1000);
 
-if(medStale())setTimeout(()=>toast("Yesterday's unsaved timer was cleared"),600);
+{const VK=KEY+'.ver';let lastV=null;try{lastV=localStorage.getItem(VK);localStorage.setItem(VK,APP_VERSION)}catch(e){}
+  if(medStale())setTimeout(()=>toast("Yesterday's unsaved timer was cleared"),600);
+  else if(lastV&&cmpV(APP_VERSION,lastV)>0)setTimeout(()=>toast(`Updated to version ${APP_VERSION}`),600);}
+dailySnap();
 render();
 checkUpdate(false);
 setInterval(()=>checkUpdate(false),20*60*1000);
