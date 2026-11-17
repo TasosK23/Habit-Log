@@ -140,9 +140,13 @@ svg{display:block}
 .cnt.lk{padding:0 8px}
 .cnt.on{background:var(--ac);color:var(--on)}
 .cnt.on button{color:var(--on)}
-.heat{position:relative;container-type:inline-size;display:grid;grid-template-columns:repeat(22,1fr);gap:3px;margin-top:14px}
-.heat::after{content:"";position:absolute;left:0;top:0;width:calc((100cqw - 63px) / 22);aspect-ratio:1;border-radius:3px;box-shadow:0 0 0 1.6px #e6f0ff;opacity:var(--so,0);pointer-events:none;
-  transform:translate(calc(var(--sc,0) * ((100cqw - 63px) / 22 + 3px)),calc(var(--sr,0) * ((100cqw - 63px) / 22 + 3px)))}
+.heat{display:flex;gap:7px;margin-top:14px}
+.hl{display:grid;grid-template-rows:repeat(7,1fr);gap:3px;flex:none}
+.hl b{display:flex;align-items:center;font-size:10px;font-weight:600;line-height:1;color:#4f5b73;transition:color .3s ease}
+.hl b.on{color:#e6f0ff}
+.hg{position:relative;flex:1;min-width:0;container-type:inline-size;display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.hg::after{content:"";position:absolute;left:0;top:0;width:calc((100cqw - 57px) / 20);aspect-ratio:1;border-radius:3px;box-shadow:0 0 0 1.6px #e6f0ff;opacity:var(--so,0);pointer-events:none;
+  transform:translate(calc(var(--sc,0) * ((100cqw - 57px) / 20 + 3px)),calc(var(--sr,0) * ((100cqw - 57px) / 20 + 3px)))}
 .heat i{aspect-ratio:1;border-radius:3px;background:var(--cd);transition:background-color .45s ease,box-shadow .45s ease}
 .heat i.p1{background:var(--p1)}.heat i.p2{background:var(--p2)}.heat i.p3{background:var(--p3)}.heat i.p4{background:var(--p4)}
 .heat i.d{background:var(--c)}
@@ -465,7 +469,7 @@ body.haspill #toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 <script>
 (()=>{
 'use strict';
-const APP_VERSION='2026.11.17.1';
+const APP_VERSION='2026.11.17.2';
 const APP_CREATED='2026-11-07';
 const KEY='habitlog.v1';
 const COLORS=['#4da3ff','#2f7bff','#5ee0ff','#8a9bff','#b18cff','#3ddc97','#ffc857','#ff7a7a','#ff7ac6','#9fb0c9'];
@@ -953,7 +957,7 @@ function cascade(list,dir,delay,from){
 }
 function burst(el){if(REDUCED||!el||!el.animate)return;const b=document.createElement('span');b.className='burst';el.appendChild(b);
   b.animate([{transform:'scale(.75)',opacity:.9},{transform:'scale(1.7)',opacity:0}],{duration:560,easing:'cubic-bezier(.2,.8,.3,1)'}).onfinish=()=>b.remove()}
-function popToday(card){if(REDUCED||!card)return;const t=today(),r=diffDays(startOfWeek(t),t),cell=card.querySelectorAll('.heat i')[r*22+21];
+function popToday(card){if(REDUCED||!card)return;const t=today(),r=diffDays(startOfWeek(t),t),cell=card.querySelectorAll('.hg i')[r*HW];
   if(cell&&cell.animate)cell.animate([{transform:'scale(.2)'},{transform:'scale(1.45)',offset:.45},{transform:'none'}],{duration:620,easing:'cubic-bezier(.3,1.4,.5,1)'})}
 function celebrate(el){
   vib([22,45,22,45,80]);
@@ -1001,25 +1005,27 @@ function gauge(score){
 function ring(fr){const c=2*Math.PI*22;return `<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke-width="3" stroke-linecap="round"><circle class="tr" cx="24" cy="24" r="22"/><circle class="pg${fr>0?'':' z'}${fr>=1?' full':''}" cx="24" cy="24" r="22" style="stroke-dasharray:${(fr*c).toFixed(1)} ${c.toFixed(1)}"/></svg>`}
 function barCol(val,max,label,lab2,isT){return `<div class="bc${isT?' tod':''}"><small>${lab2||''}</small><div class="bt"><div class="bv${val>0?' on':''}" style="height:${val>0?Math.max(6,val/max*100).toFixed(1):3}%"></div></div><span>${label}</span></div>`}
 const seg=(act,opts,cur)=>opts.map(([v,l])=>`<button class="sg${v===cur?' on':''}" data-act="${act}" data-v="${v}">${l}</button>`).join('');
+const HW=20;   // weeks of history on each card
 const heatCache=new Map();
 const heatKey=h=>h.id+'|'+dataVer+'|'+today()+'|'+S.settings.weekStart;
 function heatCells(h){
   const k=heatKey(h),hit=heatCache.get(h.id);if(hit&&hit.k===k)return hit.html;
-  const W=22,t=today(),ws=startOfWeek(t);let cells='';
+  const W=HW,t=today(),ws=startOfWeek(t);let cells='';
   for(let r=0;r<7;r++)for(let c=0;c<W;c++){
-    const x=addDays(ws,-(W-1-c)*7+r);let cls='';
+    const x=addDays(ws,-c*7+r);let cls='';
     if(x>t)cls='f';else if(x<h.created)cls='n';else cls=level(h,x);
     cells+=cls?`<i class="${cls}"></i>`:'<i></i>';
   }
   heatCache.set(h.id,{k,html:cells});return cells;
 }
 function heat(h,d){
-  const t=today(),wd=startOfWeek(d),col=21+diffDays(startOfWeek(t),wd)/7,row=diffDays(wd,d),vis=col>=0&&col<=21&&d>=h.created;
-  return `<div class="heat" data-hk="${esc(heatKey(h))}" data-h="${h.id}" style="--sc:${col};--sr:${row};--so:${vis?1:0}"></div>`;
+  const t=today(),wd=startOfWeek(d),col=diffDays(wd,startOfWeek(t))/7,row=diffDays(wd,d),vis=col>=0&&col<HW&&d>=h.created;
+  let lab='';for(let i=0;i<7;i++)lab+=`<b${vis&&i===row?' class="on"':''}>${DN[(S.settings.weekStart+i)%7].slice(0,2)}</b>`;
+  return `<div class="heat" style="--sc:${col};--sr:${row};--so:${vis?1:0}"><div class="hl" aria-hidden="true">${lab}</div><div class="hg" data-hk="${esc(heatKey(h))}" data-h="${h.id}"></div></div>`;
 }
 const heatTpl=new Map();
 function fillHeat(scope){
-  (scope||root).querySelectorAll('.heat[data-hk]').forEach(el=>{
+  (scope||root).querySelectorAll('.hg[data-hk]').forEach(el=>{
     const k=el.getAttribute('data-hk');if(el._hk===k&&el.firstChild)return;
     let tp=heatTpl.get(k);
     if(!tp){const h=byId(el.getAttribute('data-h'));if(!h)return;tp=document.createElement('template');tp.innerHTML=heatCells(h);heatTpl.set(k,tp);if(heatTpl.size>120)heatTpl.delete(heatTpl.keys().next().value)}
